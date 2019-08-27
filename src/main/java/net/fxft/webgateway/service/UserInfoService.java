@@ -1,6 +1,8 @@
 package net.fxft.webgateway.service;
 
 import net.fxft.common.jdbc.JdbcUtil;
+import net.fxft.gateway.event.everyunit.UpdateCacheEvent;
+import net.fxft.gateway.event.impl.UpdateCacheEventListener;
 import net.fxft.webgateway.po.UserInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
-public class UserInfoService {
+public class UserInfoService implements UpdateCacheEventListener {
     
     private static final Logger log = LoggerFactory.getLogger(UserInfoService.class);
     
@@ -62,4 +64,13 @@ public class UserInfoService {
         return ui;
     }
 
+    @Override
+    public boolean isEventMatch(UpdateCacheEvent updateCacheEvent) {
+        return "userinfo".equalsIgnoreCase(updateCacheEvent.getCacheName());
+    }
+
+    @Override
+    public void fireUpdateCache(UpdateCacheEvent updateCacheEvent) {
+        updateCache();
+    }
 }

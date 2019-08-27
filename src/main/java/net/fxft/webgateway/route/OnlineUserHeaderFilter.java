@@ -25,38 +25,46 @@ public class OnlineUserHeaderFilter implements GatewayFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        String token = exchange.getRequest().getHeaders().getFirst("Authorization");
-        if (token == null) {
-            token = exchange.getRequest().getQueryParams().getFirst("access_token");
-        }
-        UserInfo userinfo = null;
-        if (token == null) {
-            throw new SessionTimeoutException("session timeout.");
-        }else{
-            try {
-                String subject = jwtDecoder.getSubject(token);
-                userinfo = this.userInfoService.getLoginableUserById(Integer.valueOf(subject));
-            } catch (Exception e) {
-                log.error("jwt解析异常！token" + token+"; requri="+exchange.getRequest().getPath(), e);
-//                response.setHeader("Access-Control-Allow-Origin", origin);
-//                response.setHeader("Access-Control-Allow-Headers", "*");
-//                response.setHeader("Access-Control-Allow-Methods", "OPTIONS,GET,POST,DELETE,PUT");
-//                response.setHeader("Access-Control-Allow-Credentials", "true");
-                throw new SessionTimeoutException("invalid jwt token.");
+        boolean wt = (boolean) exchange.getAttributes().getOrDefault(AutoChangeURIFilter.Without_Token, false);
+        if (wt) {
+            ServerHttpRequest request = exchange.getRequest().mutate().headers(hd -> {
+                hd.remove("ssoUserId");
+                hd.remove("ssoLoginName");
+                hd.remove("ssoUserType");
+            }).build();
+            return chain.filter(exchange.mutate().request(request).build());
+        }else {
+            String token = exchange.getRequest().getHeaders().getFirst("Authorization");
+            if (token == null) {
+                token = exchange.getRequest().getQueryParams().getFirst("access_token");
             }
+            UserInfo userinfo = null;
+            if (token == null) {
+                throw new SessionTimeoutException("session timeout.");
+            } else {
+                try {
+                    String subject = jwtDecoder.getSubject(token);
+                    userinfo = this.userInfoService.getLoginableUserById(Integer.valueOf(subject));
+                } catch (Exception e) {
+                    log.error("jwt解析异常！token" + token + "; requri=" + exchange.getRequest().getPath(), e);
+                    throw new SessionTimeoutException("invalid jwt token.");
+                }
+            }
+            if (userinfo == null) {
+                throw new SessionTimeoutException("session timeout.");
+            }
+            final UserInfo fuser = userinfo;
+            final String sessionId = token;
+            ServerHttpRequest request = exchange.getRequest().mutate().headers(hd -> {
+                hd.remove("ssoUserId");
+                hd.remove("ssoLoginName");
+                hd.remove("ssoUserType");
+                hd.add("ssoSessionId", sessionId);
+                hd.add("ssoUserId", fuser.getUserId().toString());
+                hd.add("ssoLoginName", fuser.getLoginName());
+                hd.add("ssoUserType", fuser.getUserType());
+            }).build();
+            return chain.filter(exchange.mutate().request(request).build());
         }
-        if (userinfo == null) {
-            throw new SessionTimeoutException("session timeout.");
-        }
-        final UserInfo fuser = userinfo;
-        ServerHttpRequest request = exchange.getRequest().mutate().headers(hd -> {
-            hd.remove("ssoUserId");
-            hd.remove("ssoLoginName");
-            hd.remove("ssoUserType");
-            hd.add( "ssoUserId", fuser.getUserId().toString());
-            hd.add( "ssoLoginName", fuser.getLoginName());
-            hd.add( "ssoUserType", fuser.getUserType());
-        }).build();
-        return chain.filter(exchange.mutate().request(request).build());
     }
 }

@@ -11,27 +11,41 @@ public class GatewayRoutes {
 
     @Autowired
     private OnlineUserHeaderFilter onlineUserHeaderFilter;
+    @Autowired
+    private AutoChangeURIFilter changeURIFilter;
 
     @Bean
     public RouteLocator routeLocator(RouteLocatorBuilder builder) {
         //route是有序的
         return builder.routes()
-                .route(r -> r.path("/login/**")
-                        .filters(f -> f.stripPrefix(1))
-                        .uri("lb://security/")
-                )
-                .route(r -> r.path("/security/**")
-                        .filters(
-                                f -> f.stripPrefix(1)
-                                        .filter(onlineUserHeaderFilter)
-                        )
-                        .uri("lb://security/")
-                )
                 .route(r -> r.path("/**")
-                        .filters(f -> f.filter(onlineUserHeaderFilter))
-                        .uri("https://jascsold.api.jjicar.net")
+                        .filters(f -> f.filter(changeURIFilter)
+                                .filter(onlineUserHeaderFilter)
+                        )
+                        .uri("lb://autochange")
                 )
+
+//                .route(r -> r.path("/login/**")
+//                        .filters(f -> f.stripPrefix(1).filter(changeURIFilter))
+//                        .uri("lb://autochange")
+////                        .uri("lb://security/")
+//                )
+//                .route(r -> r.path("/security/**")
+//                        .filters(
+//                                f -> f.stripPrefix(1)
+//                                        .filter(onlineUserHeaderFilter)
+//                                .uri()
+//                        )
+////                        .uri("lb://security/")
+//                )
+//                .route(r -> r.path("/**")
+//                        .filters(f -> f.filter(onlineUserHeaderFilter))
+//                        .uri("https://jascsold.api.jjicar.net")
+//                )
                 .build();
     }
+
+
+
 
 }
