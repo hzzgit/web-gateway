@@ -18,13 +18,26 @@ public class GatewayRoutes {
     public RouteLocator routeLocator(RouteLocatorBuilder builder) {
         //route是有序的
         return builder.routes()
-                .route(r -> r.path("/**")
-                        .filters(f -> f.filter(changeURIFilter)
-                                .filter(onlineUserHeaderFilter)
+//                .route(r -> r.path("/**")
+//                        .filters(f -> f.filter(changeURIFilter)
+//                                .filter(onlineUserHeaderFilter)
+//                        )
+//                        .uri("lb://autochange")
+//                )
+                .route(r -> r.path("/login2.action",
+                        "/randomPicture.action",
+                        "/getMenuTree.action",
+                        "/mapRefresh.action",
+//                        "/platformconfig/getGlobalPlatfromConfig.action",
+//                        "/appimg/getAppQRCodeImg.action",
+                        "/logout2.action"
                         )
-                        .uri("lb://autochange")
+                        .uri("lb://security/")
                 )
-
+                .route(r -> r.path("/**")
+                        .filters(f -> f.filter(onlineUserHeaderFilter))
+                        .uri("lb://subiaoweb/")
+                )
 //                .route(r -> r.path("/login/**")
 //                        .filters(f -> f.stripPrefix(1).filter(changeURIFilter))
 //                        .uri("lb://autochange")

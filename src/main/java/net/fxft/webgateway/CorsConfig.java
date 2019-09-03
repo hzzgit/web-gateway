@@ -20,6 +20,7 @@ public class CorsConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.addAllowedMethod("*");
         config.addAllowedHeader("*");
+        config.setAllowCredentials(true);
         log.info("cors.AllowedOrigin=" + origins);
         for (String origin : origins.split(",")) {
             config.addAllowedOrigin(origin);
