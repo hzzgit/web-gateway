@@ -25,7 +25,7 @@ public class OnlineUserHeaderFilter implements GatewayFilter {
     private JwtDecoder jwtDecoder;
     @Autowired
     private UserInfoService userInfoService;
-    @Value("${ssoSign}")
+    @Value("${config.ssoSign}")
     private String ssoSign;
 
     @Override
