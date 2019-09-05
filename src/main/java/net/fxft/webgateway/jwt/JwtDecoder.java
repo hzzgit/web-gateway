@@ -1,5 +1,9 @@
 package net.fxft.webgateway.jwt;
 
+import com.auth0.jwt.interfaces.DecodedJWT;
+
+import java.util.Date;
+
 /**
  *
  * @author huangLuSen
@@ -7,6 +11,8 @@ package net.fxft.webgateway.jwt;
  * 
  */
 public interface JwtDecoder {
+
+	DecodedJWT decodedJWTWithoutVerify(String token) throws Exception;
 
 	String getSubject(String token) throws Exception;
 	

@@ -34,6 +34,12 @@ public class GatewayRoutes {
                         )
                         .uri("lb://security/")
                 )
+                .route(r -> r.path("/ccreport/**",
+                        "/logisreport/**",
+                        "/newreport/**",
+                        "/safedriving/**")
+                        .filters(f -> f.filter(onlineUserHeaderFilter))
+                        .uri("lb://financialreportwebapi/"))
                 .route(r -> r.path("/**")
                         .filters(f -> f.filter(onlineUserHeaderFilter))
                         .uri("lb://subiaoweb/")

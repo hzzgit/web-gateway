@@ -35,6 +35,11 @@ public class DefaultJwtDecoder implements JwtDecoder {
 		verifier = JWT.require(Algorithm.HMAC256(jwtSecret)).build();
 	}
 
+	public DecodedJWT decodedJWTWithoutVerify(String token) throws Exception {
+		DecodedJWT decode = JWT.decode(token);
+		return decode;
+	}
+
 	@Override
 	public String getSubject(String token) throws Exception {
 		DecodedJWT jwt = verifier.verify(token);
