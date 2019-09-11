@@ -24,7 +24,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
-import reactor.netty.http.server.HttpServerRequest;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -35,7 +34,7 @@ import java.util.Map;
  * @author admin
  *
  */
-@Controller
+@RestController
 public class LoginAction extends GenericAction {
 
 	private static final Logger log = LoggerFactory.getLogger(LoginAction.class);
@@ -53,7 +52,6 @@ public class LoginAction extends GenericAction {
 	private RedisUtil redisUtil;
 
 
-	@ResponseBody
 	@RequestMapping("/login2.action")
 	public Mono<JsonMessage> login3(ServerHttpRequest request, ServerWebExchange exchange){
 		return exchange.getFormData().map(params -> {
@@ -215,7 +213,6 @@ public class LoginAction extends GenericAction {
 	}
 
 
-	@ResponseBody
 	@RequestMapping("/logout2.action")
 	public JsonMessage logout2(ServerHttpRequest request) {
 		AttrLog alog = AttrLog.get("用户退出登录！");
@@ -257,7 +254,6 @@ public class LoginAction extends GenericAction {
      * @date 2019/8/20 16:32
      */
     @PostMapping("/appQrLogin.action")
-    @ResponseBody
     public JsonMessage appQrLogin(@RequestBody AppQrLoginDto dto, ServerHttpRequest request){
         String key = dto.getKey();
         if(StringUtils.isBlank(key)){
