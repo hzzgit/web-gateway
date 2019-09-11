@@ -23,6 +23,8 @@ public class DefaultJwtEncoder implements JwtEncoder {
 	//默认1个小时，60分钟
 	@Value("${config.jwtExpireMinute:60}")
 	private int jwtExpireMinute;
+	@Value("${config.appQRLoginJwtExpireMinute:5}")
+	private int appQRLoginJwtExpireMinute;
 	@Value("${config.jwtSecret}")
 	private String jwtSecret;
 	
@@ -38,6 +40,13 @@ public class DefaultJwtEncoder implements JwtEncoder {
 	public String encodeSubject(String subject) {
 		String token = JWT.create().withSubject(subject)
 				.withExpiresAt(new Date(System.currentTimeMillis() + jwtExpireMinute * 60000))
+				.sign(algorithm);
+		return token;
+	}
+
+	public String encodeQRLoginSubject(String subject) {
+		String token = JWT.create().withSubject(subject)
+				.withExpiresAt(new Date(System.currentTimeMillis() + appQRLoginJwtExpireMinute * 60000))
 				.sign(algorithm);
 		return token;
 	}

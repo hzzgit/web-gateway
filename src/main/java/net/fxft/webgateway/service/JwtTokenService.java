@@ -43,6 +43,22 @@ public class JwtTokenService {
         return NameAndValue.of(jwt, sessionId);
     }
 
+    public int getOnlineUserId(ServerHttpRequest request) throws Exception{
+        String token = request.getHeaders().getFirst("Authorization");
+        if (token == null) {
+            throw new Exception("您还没有登录！");
+        } else {
+            String useridstr = jwtDecoder.getSubject(token);
+            return Integer.parseInt(useridstr);
+        }
+    }
+
+    public String createQRLoginJwtToken(int userId) {
+        String jwt = jwtEncoder.encodeQRLoginSubject(String.valueOf(userId));
+        return jwt;
+    }
+
+
     public String getSessionIdByToken(String jwtToken) {
         String sid = (String) autoCacheService.getCacheMap(sessionIdCacheName).get(jwtToken);
         return sid;

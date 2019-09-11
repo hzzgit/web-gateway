@@ -9,6 +9,7 @@ package net.fxft.webgateway.jwt;
 public interface JwtEncoder {
 
 	String encodeSubject(String subject);
+	String encodeQRLoginSubject(String subject);
 	int getJwtExpireMinute();
 	
 }

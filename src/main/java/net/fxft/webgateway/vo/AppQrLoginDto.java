@@ -66,4 +66,15 @@ public class AppQrLoginDto implements Serializable {
     public void setAppIdentifier(String appIdentifier) {
         this.appIdentifier = appIdentifier;
     }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("AppQrLoginDto{");
+        sb.append("loginName='").append(loginName).append('\'');
+        sb.append(", password='").append(password).append('\'');
+        sb.append(", key='").append(key).append('\'');
+        sb.append(", appIdentifier='").append(appIdentifier).append('\'');
+        sb.append('}');
+        return sb.toString();
+    }
 }

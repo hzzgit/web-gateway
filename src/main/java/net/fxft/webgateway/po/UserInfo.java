@@ -28,6 +28,7 @@ public class UserInfo implements java.io.Serializable {
 	private String name;
 	private String userState;
 	private String userType;
+	private Long createStaff;
 
 	public Integer getUserId(){
 		return this.userId;
@@ -93,9 +94,18 @@ public class UserInfo implements java.io.Serializable {
 		this.userType=userType;
 	}
 
+	public Long getCreateStaff() {
+		return createStaff;
+	}
+
+	public void setCreateStaff(Long createStaff) {
+		this.createStaff = createStaff;
+	}
+
 	public boolean isSuperAdmin() {
 		return "admin".equals(getUserType());
 	}
+
 
 	@Override
 	public String toString() {
