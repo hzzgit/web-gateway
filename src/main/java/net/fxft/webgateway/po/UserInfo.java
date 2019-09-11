@@ -24,6 +24,7 @@ public class UserInfo implements java.io.Serializable {
 	private Integer deleted;
 	private String owner;
 	private String loginName;
+	private String password;
 	private String name;
 	private String userState;
 	private String userType;
@@ -60,6 +61,14 @@ public class UserInfo implements java.io.Serializable {
 		this.loginName=loginName;
 	}
 
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
 	public String getName(){
 		return this.name;
 	}
@@ -82,6 +91,10 @@ public class UserInfo implements java.io.Serializable {
 
 	public void setUserType(String userType){
 		this.userType=userType;
+	}
+
+	public boolean isSuperAdmin() {
+		return "admin".equals(getUserType());
 	}
 
 	@Override

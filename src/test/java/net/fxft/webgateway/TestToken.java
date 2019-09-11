@@ -7,6 +7,8 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import org.junit.Test;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class TestToken {
@@ -25,5 +27,17 @@ public class TestToken {
         System.out.println(exp);
 
     }
+
+
+    @Test
+    public void test2() {
+        Map<String, Integer> map = new HashMap<>();
+        map.put("aaa", new Integer(10));
+
+
+
+    }
+
+
 
 }

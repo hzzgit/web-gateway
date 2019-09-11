@@ -24,8 +24,9 @@ public class GatewayRoutes {
 //                        )
 //                        .uri("lb://autochange")
 //                )
-                .route(r -> r.path("/login2.action",
-                        "/randomPicture.action",
+                .route(r -> r.path(
+//                        "/login2.action",
+//                        "/randomPicture.action",
                         "/getMenuTree.action",
                         "/mapRefresh.action",
 //                        "/platformconfig/getGlobalPlatfromConfig.action",
@@ -40,9 +41,12 @@ public class GatewayRoutes {
                         "/safedriving/**")
                         .filters(f -> f.filter(onlineUserHeaderFilter))
                         .uri("lb://financialreportwebapi/"))
-                .route(r -> r.path("/**")
+                .route(r -> r.path("/reportweb/**")
                         .filters(f -> f.filter(onlineUserHeaderFilter))
-                        .uri("lb://subiaoweb/")
+                        .uri("lb://reportweb/"))
+                .route(r -> r.path("/**")
+                                .filters(f -> f.filter(onlineUserHeaderFilter))
+                                .uri("lb://subiaoweb/")
                 )
 //                .route(r -> r.path("/login/**")
 //                        .filters(f -> f.stripPrefix(1).filter(changeURIFilter))

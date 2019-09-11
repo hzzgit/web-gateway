@@ -3,7 +3,6 @@ package net.fxft.webgateway;
 import net.fxft.cloud.spring.SpringUtil;
 import net.fxft.gateway.event.EveryUnitKafkaHelper;
 import net.fxft.gateway.event.IEveryUnitKafkaHelper;
-import net.fxft.gateway.event.impl.UpdateCacheEventListenerProcesser;
 import net.fxft.gateway.kafka.UnitConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
