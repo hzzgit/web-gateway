@@ -1,5 +1,6 @@
 package net.fxft.webgateway;
 
+import net.fxft.common.util.BasicUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,7 +24,10 @@ public class CorsConfig {
         config.setAllowCredentials(true);
         log.info("cors.AllowedOrigin=" + origins);
         for (String origin : origins.split(",")) {
-            config.addAllowedOrigin(origin);
+            origin = origin.trim();
+            if(BasicUtil.isNotEmpty(origin)) {
+                config.addAllowedOrigin(origin);
+            }
         }
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource(new PathPatternParser());
         source.registerCorsConfiguration("/**", config);

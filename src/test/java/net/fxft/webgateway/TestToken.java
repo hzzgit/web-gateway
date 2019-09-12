@@ -35,6 +35,10 @@ public class TestToken {
         map.put("aaa", new Integer(10));
 
 
+        System.out.println(Integer.MAX_VALUE);
+
+
+
 
     }
 

@@ -24,6 +24,7 @@ public class GatewayRoutes {
 //                        "/platformconfig/getGlobalPlatfromConfig.action",
 //                        "/appimg/getAppQRCodeImg.action",
                         )
+                        .filters(f -> f.filter(onlineUserHeaderFilter))
                         .uri("lb://security/")
                 )
                 .route(r -> r.path("/ccreport/**",
@@ -35,6 +36,33 @@ public class GatewayRoutes {
                 .route(r -> r.path("/reportweb/**")
                         .filters(f -> f.filter(onlineUserHeaderFilter))
                         .uri("lb://reportweb/"))
+                //gps服务
+                .route(r -> r.path("/historyGpsInfo/**", "/track/**")
+                        .filters(f -> f.filter(onlineUserHeaderFilter))
+                        .uri("lb://gpswebapi/"))
+                //视频
+                .route(r -> r.path("/videoCommand/**", "/videoDownload/**",
+                        "/videoPlayBack/**", "/videoRequest/**", "/videoResourceSearch/**")
+                        .filters(f -> f.filter(onlineUserHeaderFilter))
+                        .uri("lb://videowebapi/"))
+                //实时监控
+                .route(r -> r.path("/board/**", "/MobilerealData/**",
+                        "/mobile/vehicle/getdeptreebyios.action",
+                        "/mobile/vehicle/getDepTree.action",
+                        "/realData/**", "/realDataweb/**",
+                        "/vehicle/getDepTree.action",
+                        "/vehicle/getDepTreexiamen.action",
+                        "/vehicle/searchbyvehicle.action")
+                        .filters(f -> f.filter(onlineUserHeaderFilter))
+                        .uri("lb://monitorwebapi/"))
+                //对外接口不用登录
+                .route(r -> r.path("/interfaceAPI",
+                        "/alarmSearchActionAPI",
+                        "/gpsApi",
+                        "/transparentSendAPI",
+                        "/vehicleActionAPI")
+                        .uri("lb://subiaoweb/")
+                )
                 .route(r -> r.path("/**")
                         .filters(f -> f.filter(onlineUserHeaderFilter))
                         .uri("lb://subiaoweb/")

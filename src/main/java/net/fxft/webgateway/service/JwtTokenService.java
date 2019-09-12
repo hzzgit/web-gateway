@@ -109,8 +109,8 @@ public class JwtTokenService {
             long changeTokenTime = jwtEncoder.getJwtExpireMinute()/2 * 60_000;
             if (sessionId == null || exp.getTime() - System.currentTimeMillis() < changeTokenTime) {
                 NameAndValue<String> newToken = createJwtToken(Integer.parseInt(subject), sessionId);
-                log.debug("自动换token！exp=" + TimeUtil.format(exp) + "; subject=" + subject +
-                        "; token=" + newToken.getName() + "; sid=" + newToken.getValue() + "; path=" + request.getPath());
+                log.debug("自动换token！exp=" + TimeUtil.format(exp) + "; subject=" + subject + "; remoteAddr=" + request.getRemoteAddress() +
+                        "; newtoken=" + newToken.getName() + "; sid=" + newToken.getValue() + "; path=" + request.getPath());
                 re.isChange = true;
                 re.token = newToken.getName();
                 re.sessionId = newToken.getValue();
@@ -121,7 +121,7 @@ public class JwtTokenService {
             }
             return re;
         } catch (Exception e) {
-            log.error("jwt解析异常！token" + token + "; requri=" + request.getPath(), e);
+            log.info("jwt解析异常！token" + token + "; requri=" + request.getPath() + "; expmsg="+BasicUtil.exceptionMsg(e));
             throw new SessionTimeoutException("session timeout.");
         }
     }
