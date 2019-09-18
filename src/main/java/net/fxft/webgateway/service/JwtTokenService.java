@@ -32,14 +32,29 @@ public class JwtTokenService {
     @Autowired
     private AutoCacheService autoCacheService;
 
-    private static final String sessionIdCacheName = "sessionId";
+    private static final String getSidByJwtCacheName = "getSidByJwtCacheName";
 
-    public NameAndValue<String> createJwtToken(int userId, String sessionId) {
-        String jwt = jwtEncoder.encodeSubject(String.valueOf(userId));
-        if (sessionId == null) {
-            sessionId = createSessionId();
+    private static final String getNewJwtByJwtCacheName = "getNewJwtByJwtCacheName";
+
+    public synchronized NameAndValue<String> createJwtToken(int userId, String sessionId, String oldJwt) {
+        if (BasicUtil.isNotEmpty(oldJwt)) {
+            if (BasicUtil.isEmpty(sessionId)) {
+                throw new RuntimeException("createJwtToken中oldJwt不为空时，sessionId不能为空！");
+            }
+            String newjwt = autoCacheService.getCacheMap(getNewJwtByJwtCacheName).get(oldJwt);
+            if (newjwt != null) {
+                log.debug("从缓存中获取jwt！sid=" + sessionId + "; oldJwt=" + oldJwt + "; newjwt=" + newjwt);
+                return NameAndValue.of(newjwt, sessionId);
+            }
         }
-        autoCacheService.getCacheMap(sessionIdCacheName).put(jwt, sessionId, jwtEncoder.getJwtExpireMinute() * 60);
+        String jwt = jwtEncoder.encodeSubject(String.valueOf(userId));
+        if(BasicUtil.isEmpty(sessionId)) {
+            sessionId = getSessionIdByToken(jwt);
+        }
+        autoCacheService.getCacheMap(getSidByJwtCacheName).put(jwt, sessionId, jwtEncoder.getJwtExpireMinute() * 60);
+        if (BasicUtil.isNotEmpty(oldJwt)) {
+            autoCacheService.getCacheMap(getNewJwtByJwtCacheName).put(oldJwt, jwt, jwtEncoder.getJwtExpireMinute() * 60);
+        }
         return NameAndValue.of(jwt, sessionId);
     }
 
@@ -60,7 +75,12 @@ public class JwtTokenService {
 
 
     public String getSessionIdByToken(String jwtToken) {
-        String sid = (String) autoCacheService.getCacheMap(sessionIdCacheName).get(jwtToken);
+        String sid = (String) autoCacheService.getCacheMap(getSidByJwtCacheName).get(jwtToken);
+        if (sid == null) {
+            sid = createSessionId();
+            autoCacheService.getCacheMap(getSidByJwtCacheName).put(jwtToken, sid, jwtEncoder.getJwtExpireMinute() * 60);
+            log.debug("createSessionIdByJwt! jwt=" + jwtToken + "; sid=" + sid);
+        }
         return sid;
     }
 
@@ -108,7 +128,7 @@ public class JwtTokenService {
             Date exp = djwt.getExpiresAt();
             long changeTokenTime = jwtEncoder.getJwtExpireMinute()/2 * 60_000;
             if (sessionId == null || exp.getTime() - System.currentTimeMillis() < changeTokenTime) {
-                NameAndValue<String> newToken = createJwtToken(Integer.parseInt(subject), sessionId);
+                NameAndValue<String> newToken = createJwtToken(Integer.parseInt(subject), sessionId, token);
                 log.debug("自动换token！exp=" + TimeUtil.format(exp) + "; subject=" + subject + "; remoteAddr=" + request.getRemoteAddress() +
                         "; newtoken=" + newToken.getName() + "; sid=" + newToken.getValue() + "; path=" + request.getPath());
                 re.isChange = true;

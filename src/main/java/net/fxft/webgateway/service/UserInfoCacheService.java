@@ -74,9 +74,12 @@ public class UserInfoCacheService implements UpdateCacheEventListener {
         return ui;
     }
 
-    public UserInfo getUserByName(String loginName) {
-        UserInfo ui = loginNameMap.get(loginName);
-        return ui;
+    public UserInfo queryUserByName(String loginName) {
+        return jdbc.select(UserInfo.class).andEQ("loginName", loginName)
+                .andNotDeleted()
+                .queryFirst();
+//        UserInfo ui = loginNameMap.get(loginName);
+//        return ui;
     }
 
     public List<Department> queryUserDepartments(int userId) {

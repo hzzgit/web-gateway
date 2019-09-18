@@ -3,6 +3,8 @@ package net.fxft.webgateway.route;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.web.ErrorProperties;
 import org.springframework.boot.autoconfigure.web.ResourceProperties;
 import org.springframework.boot.autoconfigure.web.reactive.error.DefaultErrorWebExceptionHandler;
@@ -25,6 +27,8 @@ import org.springframework.web.reactive.function.server.ServerResponse;
  */
 public class JsonExceptionHandler extends DefaultErrorWebExceptionHandler {
 
+    private static final Logger log = LoggerFactory.getLogger(JsonExceptionHandler.class);
+    
     public JsonExceptionHandler(ErrorAttributes errorAttributes, ResourceProperties resourceProperties,
                                 ErrorProperties errorProperties, ApplicationContext applicationContext) {
         super(errorAttributes, resourceProperties, errorProperties, applicationContext);
@@ -81,7 +85,9 @@ public class JsonExceptionHandler extends DefaultErrorWebExceptionHandler {
             message.append(": ");
             message.append(ex.getMessage());
         }
-        return message.toString();
+        String emsg = message.toString();
+        log.error(emsg, ex);
+        return emsg;
     }
 
     /**

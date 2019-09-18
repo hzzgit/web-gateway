@@ -41,8 +41,6 @@ public class GenericAction {
     protected JwtDecoder jwtDecoder;
     @Autowired
     protected RedisUtil redis;
-//    @Autowired
-//    protected ServerHttpRequest request;
     @Autowired
     protected UserInfoCacheService userInfoService;
     @Autowired

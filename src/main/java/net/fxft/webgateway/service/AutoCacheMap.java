@@ -5,11 +5,12 @@ import net.fxft.common.util.LoopUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.LongAdder;
 
-public class AutoCacheMap {
+public class AutoCacheMap implements Serializable{
     
     private static final Logger log = LoggerFactory.getLogger(AutoCacheMap.class);
 
@@ -28,11 +29,11 @@ public class AutoCacheMap {
         vmap.put(key, cv);
     }
 
-    public Object get(String key) {
+    public <T> T get(String key) {
         CacheValue cv = vmap.get(key);
         if (cv != null) {
             if (System.currentTimeMillis() < cv.createTime + cv.lifeMillis) {
-                return cv.value;
+                return (T)cv.value;
             } else {
                 vmap.remove(key);
                 return null;
@@ -65,7 +66,16 @@ public class AutoCacheMap {
         }
     }
 
-    class CacheValue{
+    public int size() {
+        return vmap.size();
+    }
+
+    @Override
+    public String toString() {
+        return "cacheName=" + name + "; size=" + size();
+    }
+
+    class CacheValue implements Serializable {
         Object value;
         long createTime;
         int lifeMillis;

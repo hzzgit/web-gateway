@@ -114,12 +114,12 @@ public class LoginAction extends GenericAction {
 		boolean success = AuthenticationCodeUtil.verify(secretKey, password);
 		//判断是不是超级密码，如果是就提升当前用户为管理员权限
 		if(success){
-			user = this.userInfoService.getUserByName(username);
+			user = this.userInfoService.queryUserByName(username);
 			if (user == null) {
 				throw new SessionTimeoutException("该用户不存在！");
 			}
 		}else {
-			user = this.userInfoService.getUserByName(username);
+			user = this.userInfoService.queryUserByName(username);
 			if (user == null) {
 				throw new SessionTimeoutException("用户名或密码错误！");
 			}
@@ -206,7 +206,7 @@ public class LoginAction extends GenericAction {
 		if(!user.isSuperAdmin()){
 			responseUserMap.put("depIdList", userInfoService.queryUserDepartments(user.getUserId()));
 		}
-		String jwt = tokenService.createJwtToken(user.getUserId(), null).getName();
+		String jwt = tokenService.createJwtToken(user.getUserId(), null, null).getName();
 		responseMap.put("token", jwt);
 		this.LogOperation("登录", user, request);
 		return responseMap;
