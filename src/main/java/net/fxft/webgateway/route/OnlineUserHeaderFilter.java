@@ -1,16 +1,10 @@
 package net.fxft.webgateway.route;
 
-import com.alibaba.csp.sentinel.cluster.TokenService;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import net.fxft.cloud.redis.RedisUtil;
-import net.fxft.common.util.TimeUtil;
-import net.fxft.webgateway.jwt.JwtDecoder;
-import net.fxft.webgateway.jwt.JwtEncoder;
 import net.fxft.webgateway.po.UserInfo;
 import net.fxft.webgateway.service.JwtTokenService;
 import net.fxft.webgateway.service.JwtTokenService.ValidateTokenResult;
 import net.fxft.webgateway.service.UserInfoCacheService;
-import org.apache.http.client.methods.HttpHead;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +18,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.util.Date;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Optional;
 
 @Component
@@ -42,7 +37,7 @@ public class OnlineUserHeaderFilter implements GatewayFilter {
     private RedisUtil redis;
 
 
-    private void removeHeaders(HttpHeaders hd) {
+    static void removeHeaders(HttpHeaders hd) {
         hd.remove("ssoSign");
         hd.remove("ssoUserId");
         hd.remove("ssoLoginName");
@@ -97,7 +92,11 @@ public class OnlineUserHeaderFilter implements GatewayFilter {
                     hd.add("ssoSign", ssoSign);
                     hd.add("ssoSessionId", validateTokenResult.getSessionId());
                     hd.add("ssoUserId", fuser.getUserId().toString());
-                    hd.add("ssoLoginName", fuser.getLoginName());
+                    try {
+                        hd.add("ssoLoginName", URLEncoder.encode(fuser.getLoginName(),"UTF-8") );
+                    } catch (UnsupportedEncodingException e) {
+                        log.error("", e);
+                    }
                     hd.add("ssoUserType", fuser.getUserType());
                 }).build();
                 if (setCookieToken) {

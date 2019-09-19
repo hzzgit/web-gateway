@@ -10,6 +10,8 @@ import org.springframework.context.annotation.Configuration;
 public class GatewayRoutes {
 
     @Autowired
+    private RemoveHeaderFilter removeHeaderFilter;
+    @Autowired
     private OnlineUserHeaderFilter onlineUserHeaderFilter;
     @Autowired
     private AutoChangeURIFilter changeURIFilter;
@@ -20,7 +22,10 @@ public class GatewayRoutes {
         return builder.routes()
                 .route(r -> r.path(
                         "/getMenuTree.action",
-                        "/mapRefresh.action"
+                        "/getMainMenuTree.action",
+                        "/mapRefresh.action",
+                        "/getLockUser.action",
+                        "/unLockUser.action"
 //                        "/platformconfig/getGlobalPlatfromConfig.action",
 //                        "/appimg/getAppQRCodeImg.action",
                         )
@@ -56,11 +61,15 @@ public class GatewayRoutes {
                         .filters(f -> f.filter(onlineUserHeaderFilter))
                         .uri("lb://monitorwebapi/"))
                 //对外接口不用登录
-                .route(r -> r.path("/interfaceAPI",
-                        "/alarmSearchActionAPI",
-                        "/gpsApi",
-                        "/transparentSendAPI",
-                        "/vehicleActionAPI")
+                .route(r -> r.path("/interfaceAPI/**",
+                        "/alarmSearchActionAPI/**",
+                        "/gpsApi/**",
+                        "/transparentSendAPI/**",
+                        "/vehicleActionAPI/**",
+                        "/appimg/getAppQRCodeImg.action",
+                        "/AppQRCodePicture/**",
+                        "/platformconfig/getGlobalPlatfromConfig.action")
+                        .filters(f -> f.filter(removeHeaderFilter))
                         .uri("lb://subiaoweb/")
                 )
                 .route(r -> r.path("/**")

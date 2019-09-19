@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
 
+import java.lang.management.ManagementFactory;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class WebGatewayApplicationTests {
@@ -27,7 +29,6 @@ public class WebGatewayApplicationTests {
     public void contextLoads() {
         String str = rt.getForObject("http://security/api/userVehiclePermission?userId=65", String.class);
         System.out.println("=========="+str );
-
     }
 
     @Test

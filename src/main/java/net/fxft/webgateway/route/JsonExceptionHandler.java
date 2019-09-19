@@ -86,7 +86,11 @@ public class JsonExceptionHandler extends DefaultErrorWebExceptionHandler {
             message.append(ex.getMessage());
         }
         String emsg = message.toString();
-        log.error(emsg, ex);
+        if (ex instanceof SessionTimeoutException) {
+
+        }else {
+            log.error(emsg, ex);
+        }
         return emsg;
     }
 

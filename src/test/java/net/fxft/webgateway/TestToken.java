@@ -16,7 +16,7 @@ public class TestToken {
 
     @Test
     public void test1() {
-        String token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiZXhwIjoxNTY3NTc5OTQ4fQ.2nt45BG-fEvaQJ034NWA_7i1Xn8vCzzPvOQdViI_cSg";
+        String token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiZXhwIjoxNTY4ODEzMjI0fQ.bpCPWhyGrfacDRftEJfZ-XQA7uYfVOxH0RKNche2W8k";
         DecodedJWT decode = JWT.decode(token);
         Date d1 = decode.getExpiresAt();
         String str = decode.getSubject();

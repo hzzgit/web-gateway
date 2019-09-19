@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -59,6 +60,12 @@ public class LoginAction extends GenericAction {
 			String password = params.getFirst("password");
 			String randomCode = params.getFirst("randomCode");
 			String codeKey = params.getFirst("codeKey");
+			if (BasicUtil.isEmpty(username)) {
+				username = exchange.getRequest().getQueryParams().getFirst("username");
+				password = exchange.getRequest().getQueryParams().getFirst("password");
+				randomCode = exchange.getRequest().getQueryParams().getFirst("randomCode");
+				codeKey = exchange.getRequest().getQueryParams().getFirst("codeKey");
+			}
 			AttrLog alog = AttrLog.get("用户登录！")
 					.log("username", username)
 					.log("password", password)
@@ -74,6 +81,7 @@ public class LoginAction extends GenericAction {
 				checkValidateCode(randomCode, codeKey);
 				UserInfo user = checkUserAndPassword(username, password);
 				Map responseMap = buildResponseMap(user, request);
+				exchange.getResponse().addCookie(ResponseCookie.from("access_token", String.valueOf(responseMap.get("token"))).build());
 				return json(true, "登录成功", responseMap);
 			} catch (SessionTimeoutException e) {
 				alog.log("登录失败", e.getMessage());
