@@ -36,7 +36,7 @@ public class JwtTokenService {
 
     private static final String getNewJwtByJwtCacheName = "getNewJwtByJwtCacheName";
 
-    public synchronized NameAndValue<String> createJwtToken(int userId, String sessionId, String oldJwt) {
+    public synchronized NameAndValue<String> createJwtToken(int userId, String sessionId, String oldJwt, ServerHttpRequest request) {
         if (BasicUtil.isNotEmpty(oldJwt)) {
             if (BasicUtil.isEmpty(sessionId)) {
                 throw new RuntimeException("createJwtToken中oldJwt不为空时，sessionId不能为空！");
@@ -47,7 +47,7 @@ public class JwtTokenService {
                 return NameAndValue.of(newjwt, sessionId);
             }
         }
-        String jwt = jwtEncoder.encodeSubject(String.valueOf(userId));
+        String jwt = jwtEncoder.encodeSubject(String.valueOf(userId), request);
         if(BasicUtil.isEmpty(sessionId)) {
             sessionId = getSessionIdByToken(jwt);
         }
@@ -128,7 +128,7 @@ public class JwtTokenService {
             Date exp = djwt.getExpiresAt();
             long changeTokenTime = jwtEncoder.getJwtExpireMinute()/2 * 60_000;
             if (sessionId == null || exp.getTime() - System.currentTimeMillis() < changeTokenTime) {
-                NameAndValue<String> newToken = createJwtToken(Integer.parseInt(subject), sessionId, token);
+                NameAndValue<String> newToken = createJwtToken(Integer.parseInt(subject), sessionId, token, request);
                 log.debug("自动换token！exp=" + TimeUtil.format(exp) + "; subject=" + subject + "; remoteAddr=" + request.getRemoteAddress() +
                         "; newtoken=" + newToken.getName() + "; sid=" + newToken.getValue() + "; path=" + request.getPath());
                 re.isChange = true;

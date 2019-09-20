@@ -1,10 +1,14 @@
 package net.fxft.webgateway.route;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Configuration
 public class GatewayRoutes {
@@ -15,9 +19,12 @@ public class GatewayRoutes {
     private OnlineUserHeaderFilter onlineUserHeaderFilter;
     @Autowired
     private AutoChangeURIFilter changeURIFilter;
+    @Value("${attachementUrls.subiaoweb:}")
+    private String noLoginUrls_subiaoweb;
 
     @Bean
     public RouteLocator routeLocator(RouteLocatorBuilder builder) {
+        String[] urlarrsubiaoweb = noLoginUrls_subiaoweb.split(",");
         //route是有序的
         return builder.routes()
                 .route(r -> r.path(
@@ -61,14 +68,15 @@ public class GatewayRoutes {
                         .filters(f -> f.filter(onlineUserHeaderFilter))
                         .uri("lb://monitorwebapi/"))
                 //对外接口不用登录
-                .route(r -> r.path("/interfaceAPI/**",
+                .route(r -> r.path(toStringArray(urlarrsubiaoweb,
+                        "/interfaceAPI/**",
                         "/alarmSearchActionAPI/**",
                         "/gpsApi/**",
                         "/transparentSendAPI/**",
                         "/vehicleActionAPI/**",
                         "/appimg/getAppQRCodeImg.action",
                         "/AppQRCodePicture/**",
-                        "/platformconfig/getGlobalPlatfromConfig.action")
+                        "/platformconfig/getGlobalPlatfromConfig.action"))
                         .filters(f -> f.filter(removeHeaderFilter))
                         .uri("lb://subiaoweb/")
                 )
@@ -97,6 +105,23 @@ public class GatewayRoutes {
     }
 
 
+
+    private String[] toStringArray(String[] strarr, String ... str) {
+        List<String> list = new ArrayList<>();
+        for (String s : strarr) {
+            s = s.trim();
+            if (s.length() > 0) {
+                list.add(s);
+            }
+        }
+        for (String s : str) {
+            s = s.trim();
+            if (s.length() > 0) {
+                list.add(s);
+            }
+        }
+        return list.toArray(new String[0]);
+    }
 
 
 }

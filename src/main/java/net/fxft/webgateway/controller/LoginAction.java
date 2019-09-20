@@ -214,7 +214,7 @@ public class LoginAction extends GenericAction {
 		if(!user.isSuperAdmin()){
 			responseUserMap.put("depIdList", userInfoService.queryUserDepartments(user.getUserId()));
 		}
-		String jwt = tokenService.createJwtToken(user.getUserId(), null, null).getName();
+		String jwt = tokenService.createJwtToken(user.getUserId(), null, null, request).getName();
 		responseMap.put("token", jwt);
 		this.LogOperation("登录", user, request);
 		return responseMap;

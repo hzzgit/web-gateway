@@ -2,9 +2,13 @@ package net.fxft.webgateway.jwt;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
+import reactor.netty.http.server.HttpServerRequest;
 
 import javax.annotation.PostConstruct;
 import java.util.Date;
@@ -19,6 +23,8 @@ import java.util.Date;
 @RefreshScope
 public class DefaultJwtEncoder implements JwtEncoder {
 
+	private static final Logger log = LoggerFactory.getLogger(DefaultJwtEncoder.class);
+	
 	private Algorithm algorithm;
 	//默认1个小时，60分钟
 	@Value("${config.jwtExpireMinute:60}")
@@ -37,9 +43,18 @@ public class DefaultJwtEncoder implements JwtEncoder {
 	}
 
 	@Override
-	public String encodeSubject(String subject) {
+	public String encodeSubject(String subject, ServerHttpRequest request) {
+		int exptime = jwtExpireMinute * 60000;
+		if (request != null) {
+			String origin = request.getHeaders().getFirst("Origin");
+			if (origin != null && origin.contains("yapi.fxft.net")) {
+				//ios登录过期时间为1天
+				log.debug("IOS登录，token有效期为1天！");
+				exptime = 24 * 60 * 60000;
+			}
+		}
 		String token = JWT.create().withSubject(subject)
-				.withExpiresAt(new Date(System.currentTimeMillis() + jwtExpireMinute * 60000))
+				.withExpiresAt(new Date(System.currentTimeMillis() + exptime))
 				.sign(algorithm);
 		return token;
 	}

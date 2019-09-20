@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
+import org.springframework.cloud.gateway.route.Route;
+import org.springframework.cloud.gateway.support.ServerWebExchangeUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -35,7 +37,6 @@ public class OnlineUserHeaderFilter implements GatewayFilter {
     private String ssoSign;
     @Autowired
     private RedisUtil redis;
-
 
     static void removeHeaders(HttpHeaders hd) {
         hd.remove("ssoSign");
@@ -75,6 +76,8 @@ public class OnlineUserHeaderFilter implements GatewayFilter {
                 token = cookieToken;
             }
             if (token == null) {
+                Route route = exchange.getAttribute(ServerWebExchangeUtils.GATEWAY_ROUTE_ATTR);
+                log.error("缺少token！path=" + exchange.getRequest().getPath() + "; route=" + route);
                 throw new SessionTimeoutException("session timeout.");
             } else {
                 final ValidateTokenResult validateTokenResult = tokenService.validateAndChangeToken(token, exchange.getRequest());
