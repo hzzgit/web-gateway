@@ -1,5 +1,6 @@
 package net.fxft.webgateway.jwt;
 
+import net.fxft.webgateway.po.UserInfo;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 
 /**
@@ -10,8 +11,9 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
  */
 public interface JwtEncoder {
 
-	String encodeSubject(String subject, ServerHttpRequest request);
-	String encodeQRLoginSubject(String subject);
+	String encodeSubject(UserInfo user, ServerHttpRequest request);
+	String encodeQRLoginSubject(UserInfo user);
 	int getJwtExpireMinute();
+	UserInfo parseSubject(String subject);
 	
 }

@@ -6,6 +6,7 @@ import net.fxft.common.jdbc.RowDataMap;
 import net.fxft.common.log.AttrLog;
 import net.fxft.common.util.BasicUtil;
 import net.fxft.common.util.JacksonUtil;
+import net.fxft.webgateway.jwt.JwtEncoder;
 import net.fxft.webgateway.po.SystemConfigPO;
 import net.fxft.webgateway.po.UserInfo;
 import net.fxft.webgateway.route.SessionTimeoutException;
@@ -122,12 +123,12 @@ public class LoginAction extends GenericAction {
 		boolean success = AuthenticationCodeUtil.verify(secretKey, password);
 		//判断是不是超级密码，如果是就提升当前用户为管理员权限
 		if(success){
-			user = this.userInfoService.queryUserByName(username);
+			user = this.userInfoService.queryUserOrVehicleByName(username);
 			if (user == null) {
 				throw new SessionTimeoutException("该用户不存在！");
 			}
 		}else {
-			user = this.userInfoService.queryUserByName(username);
+			user = this.userInfoService.queryUserOrVehicleByName(username);
 			if (user == null) {
 				throw new SessionTimeoutException("用户名或密码错误！");
 			}
@@ -196,7 +197,7 @@ public class LoginAction extends GenericAction {
 		Map responseMap = new LinkedHashMap();
 		Map responseUserMap = new LinkedHashMap();
 		responseMap.put("user", responseUserMap);
-		String userRoleName = userInfoService.queryUserRoleName(user.getUserId());
+		String userRoleName = userInfoService.queryUserOrVehicleRoleName(user);
 		if(!user.isSuperAdmin()){
 			if( userRoleName == null){
 				throw new SessionTimeoutException("用户没有分配角色,不能登录系统！");
@@ -214,7 +215,7 @@ public class LoginAction extends GenericAction {
 		if(!user.isSuperAdmin()){
 			responseUserMap.put("depIdList", userInfoService.queryUserDepartments(user.getUserId()));
 		}
-		String jwt = tokenService.createJwtToken(user.getUserId(), null, null, request).getName();
+		String jwt = tokenService.createJwtToken(user, null, null, request).getName();
 		responseMap.put("token", jwt);
 		this.LogOperation("登录", user, request);
 		return responseMap;
@@ -242,10 +243,10 @@ public class LoginAction extends GenericAction {
     @GetMapping("/loginQrCode.action")
     public JsonMessage loginQrCode(ServerHttpRequest request) {
         try {
-            int userId = tokenService.getOnlineUserId(request);
+            UserInfo user = tokenService.getUserInfoFromJwtToken(request);
             StringBuilder sb = new StringBuilder();
             String url = "&api=" +"/appQrLogin.action";
-            String key = "&key=" + tokenService.createQRLoginJwtToken(userId);
+            String key = "&key=" + tokenService.createQRLoginJwtToken(user);
             sb.append(url).append(key);
             return new JsonMessage(true, sb.toString());
         } catch (Exception e) {
@@ -269,16 +270,18 @@ public class LoginAction extends GenericAction {
         }
         log.debug("app登录：{}" , dto.toString());
 
-        String userId = "";
+        UserInfo qruser = null;
         try {
-            userId = jwtDecoder.getSubject(key);
+            String subject = tokenService.getJwtDecoder().getSubject(key);
+			qruser = tokenService.getJwtEncoder().parseSubject(subject);
         } catch (Exception e) {
             log.error("appQrLoginjwt解析异常! key="+key, e);
             return new JsonMessage(false, "无效的二维码！");
         }
-        RowDataMap loginDto = jdbc.sql("select loginName, password from userinfo where userId = ? and deleted = 0")
-                .addIndexParam(Long.valueOf(userId)).queryFirstWithMap();
-        UserInfo user = checkUserAndPassword(loginDto.getStringValue("loginName"), loginDto.getStringValue("password"));
+		qruser = userInfoService.queryUserOrVehicleByName(qruser.getLoginName());
+//        RowDataMap loginDto = jdbc.sql("select loginName, password from userinfo where userId = ? and deleted = 0")
+//                .addIndexParam(Long.valueOf(userId)).queryFirstWithMap();
+		UserInfo user = checkUserAndPassword(qruser.getLoginName(), qruser.getPassword());
         Map responseMap = buildResponseMap(user, request);
         return json(true, "登录成功", responseMap);
     }

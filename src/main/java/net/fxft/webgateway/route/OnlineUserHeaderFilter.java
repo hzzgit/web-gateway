@@ -1,7 +1,6 @@
 package net.fxft.webgateway.route;
 
 import net.fxft.cloud.redis.RedisUtil;
-import net.fxft.webgateway.po.UserInfo;
 import net.fxft.webgateway.service.JwtTokenService;
 import net.fxft.webgateway.service.JwtTokenService.ValidateTokenResult;
 import net.fxft.webgateway.service.UserInfoCacheService;
@@ -44,6 +43,7 @@ public class OnlineUserHeaderFilter implements GatewayFilter {
         hd.remove("ssoLoginName");
         hd.remove("ssoUserType");
         hd.remove("origin");
+        hd.remove("Authorization");
     }
 
 
@@ -85,22 +85,22 @@ public class OnlineUserHeaderFilter implements GatewayFilter {
                     exchange.getResponse().getHeaders().add("Authorization", validateTokenResult.getToken());
                     setCookieToken = true;
                 }
-                final UserInfo fuser = userInfoService.getUserById(validateTokenResult.getUserId());
-                if (fuser == null) {
-                    throw new SessionTimeoutException("user not found.");
-                }
+//                final UserInfo fuser = userInfoService.getUserById(validateTokenResult.getUserId());
+//                if (fuser == null) {
+//                    throw new SessionTimeoutException("user not found.");
+//                }
                 ServerHttpRequest request = exchange.getRequest().mutate().headers(hd -> {
                     removeHeaders(hd);
 
                     hd.add("ssoSign", ssoSign);
                     hd.add("ssoSessionId", validateTokenResult.getSessionId());
-                    hd.add("ssoUserId", fuser.getUserId().toString());
+                    hd.add("ssoUserId", validateTokenResult.getUser().getUserId().toString());
                     try {
-                        hd.add("ssoLoginName", URLEncoder.encode(fuser.getLoginName(),"UTF-8") );
+                        hd.add("ssoLoginName", URLEncoder.encode(validateTokenResult.getUser().getLoginName(),"UTF-8") );
                     } catch (UnsupportedEncodingException e) {
                         log.error("", e);
                     }
-                    hd.add("ssoUserType", fuser.getUserType());
+                    hd.add("ssoUserType", validateTokenResult.getUser().getUserType());
                 }).build();
                 if (setCookieToken) {
                     log.debug("添加token到cookie！path=" + exchange.getRequest().getPath() + "; token=" + token);

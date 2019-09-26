@@ -85,6 +85,7 @@ public class JsonExceptionHandler extends DefaultErrorWebExceptionHandler {
             message.append(ex.getMessage());
             log.error(message.toString());
         }else {
+            message.append(ex.getMessage());
             log.error(message.toString(), ex);
         }
         return message.toString();

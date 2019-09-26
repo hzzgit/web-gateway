@@ -37,8 +37,8 @@ public class GenericAction {
     protected AutoCacheService cacheService;
     @Autowired
     protected JdbcUtil jdbc;
-    @Autowired
-    protected JwtDecoder jwtDecoder;
+//    @Autowired
+//    protected JwtDecoder jwtDecoder;
     @Autowired
     protected RedisUtil redis;
     @Autowired
@@ -94,7 +94,7 @@ public class GenericAction {
         String token = getJwtToken(request);
         if (token != null) {
             try {
-                String ustr = jwtDecoder.getSubject(token);
+                String ustr = tokenService.getJwtDecoder().getSubject(token);
                 int userId = Integer.valueOf(ustr);
                 return userInfoService.getUserById(userId);
             } catch (Exception e) {

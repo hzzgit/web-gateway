@@ -7,6 +7,7 @@ import net.fxft.common.util.BasicUtil;
 import net.fxft.common.util.TimeUtil;
 import net.fxft.webgateway.jwt.JwtDecoder;
 import net.fxft.webgateway.jwt.JwtEncoder;
+import net.fxft.webgateway.po.UserInfo;
 import net.fxft.webgateway.route.SessionTimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +37,7 @@ public class JwtTokenService {
 
     private static final String getNewJwtByJwtCacheName = "getNewJwtByJwtCacheName";
 
-    public synchronized NameAndValue<String> createJwtToken(int userId, String sessionId, String oldJwt, ServerHttpRequest request) {
+    public synchronized NameAndValue<String> createJwtToken(UserInfo user, String sessionId, String oldJwt, ServerHttpRequest request) {
         if (BasicUtil.isNotEmpty(oldJwt)) {
             if (BasicUtil.isEmpty(sessionId)) {
                 throw new RuntimeException("createJwtToken中oldJwt不为空时，sessionId不能为空！");
@@ -47,7 +48,7 @@ public class JwtTokenService {
                 return NameAndValue.of(newjwt, sessionId);
             }
         }
-        String jwt = jwtEncoder.encodeSubject(String.valueOf(userId), request);
+        String jwt = jwtEncoder.encodeSubject(user, request);
         if(BasicUtil.isEmpty(sessionId)) {
             sessionId = getSessionIdByToken(jwt);
         }
@@ -58,18 +59,18 @@ public class JwtTokenService {
         return NameAndValue.of(jwt, sessionId);
     }
 
-    public int getOnlineUserId(ServerHttpRequest request) throws Exception{
+    public UserInfo getUserInfoFromJwtToken(ServerHttpRequest request) throws Exception{
         String token = request.getHeaders().getFirst("Authorization");
         if (token == null) {
             throw new Exception("您还没有登录！");
         } else {
-            String useridstr = jwtDecoder.getSubject(token);
-            return Integer.parseInt(useridstr);
+            String subject = jwtDecoder.getSubject(token);
+            return jwtEncoder.parseSubject(subject);
         }
     }
 
-    public String createQRLoginJwtToken(int userId) {
-        String jwt = jwtEncoder.encodeQRLoginSubject(String.valueOf(userId));
+    public String createQRLoginJwtToken(UserInfo user) {
+        String jwt = jwtEncoder.encodeQRLoginSubject(user);
         return jwt;
     }
 
@@ -121,14 +122,14 @@ public class JwtTokenService {
             ValidateTokenResult re  = new ValidateTokenResult();
             //这里先验证token是否有效
             String subject = jwtDecoder.getSubject(token);
-            re.userId = Integer.parseInt(subject);
+            re.user = jwtEncoder.parseSubject(subject);
             String sessionId = getSessionIdByToken(token);
             //30分钟内替换新的token
             DecodedJWT djwt = jwtDecoder.decodedJWTWithoutVerify(token);
             Date exp = djwt.getExpiresAt();
             long changeTokenTime = jwtEncoder.getJwtExpireMinute()/2 * 60_000;
             if (sessionId == null || exp.getTime() - System.currentTimeMillis() < changeTokenTime) {
-                NameAndValue<String> newToken = createJwtToken(Integer.parseInt(subject), sessionId, token, request);
+                NameAndValue<String> newToken = createJwtToken(re.user, sessionId, token, request);
                 log.debug("自动换token！exp=" + TimeUtil.format(exp) + "; subject=" + subject + "; remoteAddr=" + request.getRemoteAddress() +
                         "; newtoken=" + newToken.getName() + "; sid=" + newToken.getValue() + "; path=" + request.getPath());
                 re.isChange = true;
@@ -146,12 +147,19 @@ public class JwtTokenService {
         }
     }
 
+    public JwtEncoder getJwtEncoder() {
+        return jwtEncoder;
+    }
+
+    public JwtDecoder getJwtDecoder() {
+        return jwtDecoder;
+    }
 
     public static class ValidateTokenResult {
         private boolean isChange;
         private String token;
         private String sessionId;
-        private int userId;
+        private UserInfo user;
 
         public boolean isChange() {
             return isChange;
@@ -165,8 +173,8 @@ public class JwtTokenService {
             return sessionId;
         }
 
-        public int getUserId() {
-            return userId;
+        public UserInfo getUser() {
+            return user;
         }
     }
 

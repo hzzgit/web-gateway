@@ -1,13 +1,16 @@
 package net.fxft.webgateway.service;
 
 import net.fxft.common.jdbc.JdbcUtil;
+import net.fxft.common.jdbc.RowDataMap;
 import net.fxft.gateway.event.everyunit.UpdateCacheEvent;
 import net.fxft.gateway.event.impl.UpdateCacheEventListener;
 import net.fxft.webgateway.po.Department;
 import net.fxft.webgateway.po.UserInfo;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +24,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class UserInfoCacheService implements UpdateCacheEventListener {
     
     private static final Logger log = LoggerFactory.getLogger(UserInfoCacheService.class);
-    
+
+    @Value("${config.vehicleLoginRoleName}")
+    private String vehicleLoginRoleName;
     @Autowired
     private JdbcUtil jdbc;
 
@@ -74,12 +79,26 @@ public class UserInfoCacheService implements UpdateCacheEventListener {
         return ui;
     }
 
-    public UserInfo queryUserByName(String loginName) {
-        return jdbc.select(UserInfo.class).andEQ("loginName", loginName)
+    public UserInfo queryUserOrVehicleByName(String loginName) {
+        UserInfo ui = jdbc.select(UserInfo.class).andEQ("loginName", loginName)
                 .andNotDeleted()
                 .queryFirst();
-//        UserInfo ui = loginNameMap.get(loginName);
-//        return ui;
+        if (ui == null) {
+            //查询车辆
+            String sql = "select vehicleId, vehiclePassWord from vehicle where plateNo = ? and deleted = false";
+            RowDataMap vemap = jdbc.sql(sql).addIndexParam(loginName)
+                    .queryFirstWithMap();
+            if (vemap != null) {
+                ui = new UserInfo();
+                ui.setUserId(vemap.getIntegerValue("vehicleId"));
+                ui.setLoginName(loginName);
+                ui.setName(loginName);
+                ui.setPassword(DigestUtils.md5Hex(vemap.getStringValue("vehiclePassWord")));
+                ui.setUserType(UserInfo.UserType_Vehicle);
+                ui.setUserState(UserInfo.STATE_NORMAL);
+            }
+        }
+        return ui;
     }
 
     public List<Department> queryUserDepartments(int userId) {
@@ -90,9 +109,13 @@ public class UserInfoCacheService implements UpdateCacheEventListener {
         return deplist;
     }
 
-    public String queryUserRoleName(int userId) {
-        String sql = "select b.name from userrole a, role b where b.deleted = false and a.roleid = b.roleid and a.userid = ?";
-        return jdbc.sql(sql).addIndexParam(userId).queryOneString();
+    public String queryUserOrVehicleRoleName(UserInfo user) {
+        if (user.isVehicle()) {
+            return vehicleLoginRoleName;
+        }else {
+            String sql = "select b.name from userrole a, role b where b.deleted = false and a.roleid = b.roleid and a.userid = ?";
+            return jdbc.sql(sql).addIndexParam(user.getUserId()).queryOneString();
+        }
     }
 
 

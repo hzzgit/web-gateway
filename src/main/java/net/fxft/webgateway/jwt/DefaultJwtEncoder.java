@@ -2,6 +2,7 @@ package net.fxft.webgateway.jwt;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import net.fxft.webgateway.po.UserInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,7 +44,7 @@ public class DefaultJwtEncoder implements JwtEncoder {
 	}
 
 	@Override
-	public String encodeSubject(String subject, ServerHttpRequest request) {
+	public String encodeSubject(UserInfo user, ServerHttpRequest request) {
 		int exptime = jwtExpireMinute * 60000;
 		if (request != null) {
 			String origin = request.getHeaders().getFirst("Origin");
@@ -53,14 +54,31 @@ public class DefaultJwtEncoder implements JwtEncoder {
 				exptime = 24 * 60 * 60000;
 			}
 		}
-		String token = JWT.create().withSubject(subject)
+		String token = JWT.create().withSubject(createSubject(user))
 				.withExpiresAt(new Date(System.currentTimeMillis() + exptime))
 				.sign(algorithm);
 		return token;
 	}
 
-	public String encodeQRLoginSubject(String subject) {
-		String token = JWT.create().withSubject(subject)
+	private String createSubject(UserInfo user) {
+		String subject = user.getUserId() + "," + user.getLoginName() + "," + user.getUserType();
+		return subject;
+	}
+
+	public UserInfo parseSubject(String subject) {
+		String[] sarr = subject.split(",");
+		if (sarr.length != 3) {
+			throw new RuntimeException("subject格式不正确！subject=" + subject);
+		}
+		UserInfo ui = new UserInfo();
+		ui.setUserId(Integer.parseInt(sarr[0]));
+		ui.setLoginName(sarr[1]);
+		ui.setUserType(sarr[2]);
+		return ui;
+	}
+
+	public String encodeQRLoginSubject(UserInfo user) {
+		String token = JWT.create().withSubject(createSubject(user))
 				.withExpiresAt(new Date(System.currentTimeMillis() + appQRLoginJwtExpireMinute * 60000))
 				.sign(algorithm);
 		return token;
