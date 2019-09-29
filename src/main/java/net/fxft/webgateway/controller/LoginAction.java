@@ -190,6 +190,10 @@ public class LoginAction extends GenericAction {
 				throw new SessionTimeoutException("该账户已被停用！");
 			}
 		}
+		String pwdErrCountKey = "userPasswordErrorCount:" + user.getUserId();
+		redisUtil.execute(jedis -> {
+			jedis.del(pwdErrCountKey);
+		});
 		return user;
 	}
 
