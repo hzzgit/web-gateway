@@ -211,6 +211,11 @@ public class LoginAction extends GenericAction {
 		}else {
 			responseUserMap.put("isAdmin",false);
 		}
+		if (user.isVehicle()) {
+			responseUserMap.put("isPersonal", true);
+		} else {
+			responseUserMap.put("isPersonal", false);
+		}
 		responseUserMap.put("roleName", userRoleName);
 		if(!user.isSuperAdmin()){
 			responseUserMap.put("depIdList", userInfoService.queryUserDepartments(user.getUserId()));
