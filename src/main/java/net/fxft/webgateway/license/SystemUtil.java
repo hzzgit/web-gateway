@@ -55,8 +55,8 @@ public class SystemUtil {
         if (currentOs.name().equals(PlatformEnum.LINUX.name())) {
             systemUuid = FileUtil.getStringFromFile("/sys/devices/virtual/dmi/id/product_uuid").trim();
         }
-
         return systemUuid;
     }
+
 
 }

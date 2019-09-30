@@ -1,12 +1,14 @@
 package net.fxft.webgateway.license;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
-import sun.plugin2.util.SystemUtil;
 
 import java.io.*;
 import java.util.Base64;
@@ -17,8 +19,11 @@ import java.util.Base64;
  */
 @Service
 public class LicenseUtil {
+    
+    private static final Logger log = LoggerFactory.getLogger(LicenseUtil.class);
 
-    private LicenseConfig LicenseConfig;
+    @Autowired
+    private LicenseConfig licenseConfig;
 
     /**
      * 注册
@@ -26,11 +31,11 @@ public class LicenseUtil {
      * @throws LicenseException
      */
     public  void register() throws LicenseException {
-        String url = LicenseConfig.getRegisterUrl();
-        String authIp = LicenseConfig.getAuthIp();
-        Integer authPort = LicenseConfig.getAuthPort();
-        String code = LicenseConfig.getCode();
-        String notifyUrl = LicenseConfig.getAuthNotifyUrl();
+        String url = licenseConfig.getRegisterUrl();
+        String authIp = licenseConfig.getAuthIp();
+        Integer authPort = licenseConfig.getAuthPort();
+        String code = licenseConfig.getCode();
+        String notifyUrl = licenseConfig.getAuthNotifyUrl();
         register(url, code, authIp, authPort, notifyUrl);
     }
 
@@ -39,10 +44,10 @@ public class LicenseUtil {
      * @throws LicenseException
      */
     public void register(String code) throws LicenseException {
-        String url = LicenseConfig.getRegisterUrl();
-        String authIp = LicenseConfig.getAuthIp();
-        Integer authPort = LicenseConfig.getAuthPort();
-        String notifyUrl = LicenseConfig.getAuthNotifyUrl();
+        String url = licenseConfig.getRegisterUrl();
+        String authIp = licenseConfig.getAuthIp();
+        Integer authPort = licenseConfig.getAuthPort();
+        String notifyUrl = licenseConfig.getAuthNotifyUrl();
         register(url, code, authIp, authPort, notifyUrl);
     }
 
@@ -54,9 +59,9 @@ public class LicenseUtil {
      * @throws LicenseException
      */
     public void register(String code, String authIp) throws LicenseException {
-        String url = LicenseConfig.getRegisterUrl();
-        Integer authPort = LicenseConfig.getAuthPort();
-        String notifyUrl = LicenseConfig.getAuthNotifyUrl();
+        String url = licenseConfig.getRegisterUrl();
+        Integer authPort = licenseConfig.getAuthPort();
+        String notifyUrl = licenseConfig.getAuthNotifyUrl();
         register(url, code, authIp, authPort, notifyUrl);
     }
 
@@ -69,8 +74,8 @@ public class LicenseUtil {
      * @throws LicenseException
      */
     public void register(String code, String authIp, Integer authPort) throws LicenseException {
-        String url = LicenseConfig.getRegisterUrl();
-        String notifyUrl = LicenseConfig.getAuthNotifyUrl();
+        String url = licenseConfig.getRegisterUrl();
+        String notifyUrl = licenseConfig.getAuthNotifyUrl();
         register(url, code, authIp, authPort, notifyUrl);
     }
 
@@ -84,7 +89,7 @@ public class LicenseUtil {
      * @throws LicenseException
      */
     public void register(String code, String authIp, Integer authPort, String notifyUrl) throws LicenseException {
-        String url = LicenseConfig.getRegisterUrl();
+        String url = licenseConfig.getRegisterUrl();
         register(url, code, authIp, authPort, notifyUrl);
     }
 
@@ -134,17 +139,14 @@ public class LicenseUtil {
 
         try {
             String response = restTemplate.postForObject(url, map, String.class);
-            System.out.println(response);
-            LicenseUtil.saveLicenseFile(response);
+            log.debug("register返回值：" + response);
+            saveLicenseFile(response);
         } catch (HttpClientErrorException e) {
-            System.out.println(e.getResponseBodyAsString());
-            throw new LicenseException("the activity server response an error.");
+            throw new LicenseException("the activity server response an error.", e);
         } catch (HttpServerErrorException e) {
-            System.out.println("the activity server no response.");
-            throw new LicenseException(e.getResponseBodyAsString());
+            throw new LicenseException(e.getResponseBodyAsString(), e);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            throw e;
+            throw new LicenseException("register error!", e);
         }
     }
 
@@ -154,8 +156,8 @@ public class LicenseUtil {
      * @param license
      * @throws IOException
      */
-    public void saveLicenseFile(String license) {
-        String filePath = LicenseConfig.getFilePath();
+    public void saveLicenseFile(String license) throws Exception{
+        String filePath = licenseConfig.getFilePath();
         String[] filePathDatas = filePath.split("/");
         String path = "";
         for (String dir : filePathDatas) {
@@ -171,13 +173,13 @@ public class LicenseUtil {
         if (!licenseFileDir.exists()) {
             licenseFileDir.mkdirs();
         }
-        String fileName = path + "/" + LicenseConfig.FILE_NAME;
+        String fileName = path + "/" + licenseConfig.FILE_NAME;
         File licenseFile = new File(fileName);
         if (!licenseFile.exists()) {
             try {
                 licenseFile.createNewFile();
             } catch (IOException e) {
-                e.printStackTrace();
+                throw e;
             }
         }
 
@@ -188,7 +190,7 @@ public class LicenseUtil {
             bw.write(license);
             bw.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw e;
         }
     }
 
@@ -198,8 +200,8 @@ public class LicenseUtil {
      * @return
      * @throws LicenseException
      */
-    public static License loadLicense() throws LicenseException {
-        String filePath = LicenseConfig.getFilePath();
+    public License loadLicense() throws LicenseException {
+        String filePath = licenseConfig.getFilePath();
         String[] filePathDatas = filePath.split("/");
         String path = "";
         for (String dir : filePathDatas) {
@@ -209,7 +211,7 @@ public class LicenseUtil {
                 path = path + "/" + dir;
             }
         }
-        String fileName = path + "/" + LicenseConfig.FILE_NAME;
+        String fileName = path + "/" + licenseConfig.FILE_NAME;
         String license = "";
 
         File file = new File(fileName);

@@ -12,4 +12,8 @@ public class LicenseException extends RuntimeException {
         super(message);
     }
 
+    public LicenseException(String message, Throwable e) {
+        super(message, e);
+    }
+
 }
