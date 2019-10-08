@@ -103,7 +103,7 @@ public class OnlineUserHeaderFilter implements GatewayFilter {
                     hd.add("ssoUserType", validateTokenResult.getUser().getUserType());
                 }).build();
                 if (setCookieToken) {
-                    log.debug("添加token到cookie！path=" + exchange.getRequest().getPath() + "; token=" + token);
+                    log.debug("添加token到cookie1111！path=" + exchange.getRequest().getPath() + "; token=" + token);
                     exchange.getResponse().addCookie(ResponseCookie.from("access_token", token).path("/").build());
                 }
                 return chain.filter(exchange.mutate().request(request).build());
