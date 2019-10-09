@@ -197,6 +197,7 @@ public class RsaUtil {
      *
      * @param data
      * @return
+     *
      * @throws IOException
      */
     public static byte[] base64Decode(String data) throws IOException {

@@ -13,8 +13,8 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class License implements BytesAble {
-    private static final long serialVersionUID = 2755024287326915954L;
+public class License  {
+    private static final long serialVersionUID = 1L;
 
     /**
      * 主题 (subject)
@@ -34,17 +34,17 @@ public class License implements BytesAble {
     /**
      * 签发时间 (issued at)
      */
-    private Date issuedAt;
+    private long issuedAt;
 
     /**
      * 生效时间 (not before at)
      */
-    private Date notBeforeAt;
+    private long notBeforeAt;
 
     /**
      * 过期时间 (expiration at)
      */
-    private Date expirationAt;
+    private long expirationAt;
 
     /**
      * 是否不限制过期时间，0限制1不限制
@@ -62,7 +62,12 @@ public class License implements BytesAble {
     private String jwtSecretKey;
 
     /**
-     * 扩展信息 (extra info)
+     * 系统唯一标识码
      */
-    private SystemData extraInfo;
+    private String systemUuId;
+
+    /**
+     * 处理器ID
+     */
+    private String processorId;
 }

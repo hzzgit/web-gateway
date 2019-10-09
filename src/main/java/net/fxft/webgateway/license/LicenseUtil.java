@@ -1,5 +1,6 @@
 package net.fxft.webgateway.license;
 
+import net.fxft.common.util.JacksonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,9 +10,16 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
+import oshi.hardware.CentralProcessor;
+import oshi.hardware.GlobalMemory;
+import oshi.hardware.HardwareAbstractionLayer;
+import oshi.software.os.OperatingSystem;
+import oshi.software.os.OperatingSystemVersion;
 
 import java.io.*;
-import java.util.Base64;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author Sordors
@@ -19,7 +27,7 @@ import java.util.Base64;
  */
 @Service
 public class LicenseUtil {
-    
+
     private static final Logger log = LoggerFactory.getLogger(LicenseUtil.class);
 
     @Autowired
@@ -39,59 +47,59 @@ public class LicenseUtil {
         register(url, code, authIp, authPort, notifyUrl);
     }
 
-    /**
-     * @param code
-     * @throws LicenseException
-     */
-    public void register(String code) throws LicenseException {
-        String url = licenseConfig.getRegisterUrl();
-        String authIp = licenseConfig.getAuthIp();
-        Integer authPort = licenseConfig.getAuthPort();
-        String notifyUrl = licenseConfig.getAuthNotifyUrl();
-        register(url, code, authIp, authPort, notifyUrl);
-    }
+//    /**
+//     * @param code
+//     * @throws LicenseException
+//     */
+//    public void register(String code) throws LicenseException {
+//        String url = licenseConfig.getRegisterUrl();
+//        String authIp = licenseConfig.getAuthIp();
+//        Integer authPort = licenseConfig.getAuthPort();
+//        String notifyUrl = licenseConfig.getAuthNotifyUrl();
+//        register(url, code, authIp, authPort, notifyUrl);
+//    }
 
-    /**
-     * 注册
-     *
-     * @param authIp
-     * @param code
-     * @throws LicenseException
-     */
-    public void register(String code, String authIp) throws LicenseException {
-        String url = licenseConfig.getRegisterUrl();
-        Integer authPort = licenseConfig.getAuthPort();
-        String notifyUrl = licenseConfig.getAuthNotifyUrl();
-        register(url, code, authIp, authPort, notifyUrl);
-    }
+//    /**
+//     * 注册
+//     *
+//     * @param authIp
+//     * @param code
+//     * @throws LicenseException
+//     */
+//    public void register(String code, String authIp) throws LicenseException {
+//        String url = licenseConfig.getRegisterUrl();
+//        Integer authPort = licenseConfig.getAuthPort();
+//        String notifyUrl = licenseConfig.getAuthNotifyUrl();
+//        register(url, code, authIp, authPort, notifyUrl);
+//    }
 
-    /**
-     * 注册
-     *
-     * @param authIp
-     * @param authPort
-     * @param code
-     * @throws LicenseException
-     */
-    public void register(String code, String authIp, Integer authPort) throws LicenseException {
-        String url = licenseConfig.getRegisterUrl();
-        String notifyUrl = licenseConfig.getAuthNotifyUrl();
-        register(url, code, authIp, authPort, notifyUrl);
-    }
+//    /**
+//     * 注册
+//     *
+//     * @param authIp
+//     * @param authPort
+//     * @param code
+//     * @throws LicenseException
+//     */
+//    public void register(String code, String authIp, Integer authPort) throws LicenseException {
+//        String url = licenseConfig.getRegisterUrl();
+//        String notifyUrl = licenseConfig.getAuthNotifyUrl();
+//        register(url, code, authIp, authPort, notifyUrl);
+//    }
 
-    /**
-     * 注册
-     *
-     * @param code
-     * @param authIp
-     * @param authPort
-     * @param notifyUrl
-     * @throws LicenseException
-     */
-    public void register(String code, String authIp, Integer authPort, String notifyUrl) throws LicenseException {
-        String url = licenseConfig.getRegisterUrl();
-        register(url, code, authIp, authPort, notifyUrl);
-    }
+//    /**
+//     * 注册
+//     *
+//     * @param code
+//     * @param authIp
+//     * @param authPort
+//     * @param notifyUrl
+//     * @throws LicenseException
+//     */
+//    public void register(String code, String authIp, Integer authPort, String notifyUrl) throws LicenseException {
+//        String url = licenseConfig.getRegisterUrl();
+//        register(url, code, authIp, authPort, notifyUrl);
+//    }
 
     /**
      * 注册
@@ -103,43 +111,60 @@ public class LicenseUtil {
      * @param notifyUrl
      * @throws LicenseException
      */
-    public void register(String url, String code, String authIp, Integer authPort, String notifyUrl) throws LicenseException {
-
+    private void register(String url, String code, String authIp, Integer authPort, String notifyUrl) throws LicenseException {
         if (url == null || url.equals("")) {
-            throw new LicenseException("Not found url");
+            log.info("没有配置授权服务器地址，更新License失败！");
+            return;
         }
-
         SystemData systemData = SystemUtil.getSystemData();
-
         if (systemData.getSystemUuId() == null || systemData.getSystemUuId().equals("")) {
             throw new LicenseException("Not found SystemUuId, Please use administrator privileges to run the program.");
         }
+        SystemDataUpload sdup = new SystemDataUpload();
+        sdup.setSystemUuId(systemData.getSystemUuId());
+        sdup.setProcessorId(systemData.getProcessorId());
+        sdup.setOsName(Optional.of(systemData).map(SystemData::getOs).map(OperatingSystem::getFamily).orElse(""));
+        sdup.setOsVersion(Optional.of(systemData).map(SystemData::getOs).map(OperatingSystem::getVersion).map(OperatingSystemVersion::getVersion).orElse(""));
+        sdup.setCpuName(Optional.of(systemData).map(SystemData::getHardware).map(HardwareAbstractionLayer::getProcessor)
+                .map(CentralProcessor::getName).orElse(""));
+        sdup.setPhysicalProcessorCount(Optional.of(systemData).map(SystemData::getHardware).map(HardwareAbstractionLayer::getProcessor)
+                .map(CentralProcessor::getPhysicalProcessorCount).orElse(0));
+        sdup.setLogicalProcessorCount(Optional.of(systemData).map(SystemData::getHardware).map(HardwareAbstractionLayer::getProcessor)
+                .map(CentralProcessor::getLogicalProcessorCount).orElse(0));
+        sdup.setMemoryTotal(Optional.of(systemData).map(SystemData::getHardware).map(HardwareAbstractionLayer::getMemory)
+                .map(GlobalMemory::getTotal).orElse(0L));
+        sdup.setMemoryAvaliable(Optional.of(systemData).map(SystemData::getHardware).map(HardwareAbstractionLayer::getMemory)
+                .map(GlobalMemory::getAvailable).orElse(0L));
 
-        MultiValueMap<String, Object> map = new LinkedMultiValueMap();
-        map.add("code", code);
-        map.add("systemData", Base64.getEncoder().encodeToString(systemData.toBytes()));
+        log.info("系统UUID=" + systemData.getSystemUuId() + "; code=" + code);
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("code", code);
+//        map.add("systemData", Base64.getEncoder().encodeToString(systemData.toBytes()));
+        map.put("systemData", sdup);
 
-        if (code != null && "".equals(code)) {
-            map.add("code", code);
+        if (code != null && !"".equals(code)) {
+            map.put("code", code);
         }
 
-        if (authIp != null && "".equals(authIp)) {
-            map.add("authIp", authIp);
+        if (authIp != null && !"".equals(authIp)) {
+            map.put("authIp", authIp);
         }
 
-        if (notifyUrl != null && "".equals(notifyUrl)) {
-            map.add("notifyUrl", notifyUrl);
+        if (notifyUrl != null && !"".equals(notifyUrl)) {
+            map.put("notifyUrl", notifyUrl);
         }
 
         if (authPort != null && authPort > 0) {
-            map.add("authPort", authPort);
+            map.put("authPort", authPort);
         }
+        MultiValueMap<String, Object> postParams = new LinkedMultiValueMap();
+        String json = JacksonUtil.toJsonString(map);
+        postParams.add("value", AESUtil.encrypt(json));
 
         RestTemplate restTemplate = new RestTemplate();
-
         try {
-            String response = restTemplate.postForObject(url, map, String.class);
-            log.debug("register返回值：" + response);
+            String response = restTemplate.postForObject(url, postParams, String.class);
+            log.info("register返回值：" + response);
             saveLicenseFile(response);
         } catch (HttpClientErrorException e) {
             throw new LicenseException("the activity server response an error.", e);
@@ -156,24 +181,14 @@ public class LicenseUtil {
      * @param license
      * @throws IOException
      */
-    public void saveLicenseFile(String license) throws Exception{
+    private void saveLicenseFile(String license) throws Exception{
         String filePath = licenseConfig.getFilePath();
-        String[] filePathDatas = filePath.split("/");
-        String path = "";
-        for (String dir : filePathDatas) {
-            if (dir.indexOf(".") != -1) {
-                break;
-            } else {
-                path = path + "/" + dir;
-            }
-        }
-
-        File licenseFileDir = new File(path);
+        File licenseFileDir = new File(filePath);
         //递归创建目录
         if (!licenseFileDir.exists()) {
             licenseFileDir.mkdirs();
         }
-        String fileName = path + "/" + licenseConfig.FILE_NAME;
+        String fileName = licenseFileDir.getAbsolutePath() + "/" + licenseConfig.FILE_NAME;
         File licenseFile = new File(fileName);
         if (!licenseFile.exists()) {
             try {
@@ -202,24 +217,13 @@ public class LicenseUtil {
      */
     public License loadLicense() throws LicenseException {
         String filePath = licenseConfig.getFilePath();
-        String[] filePathDatas = filePath.split("/");
-        String path = "";
-        for (String dir : filePathDatas) {
-            if (dir.indexOf(".") != -1) {
-                break;
-            } else {
-                path = path + "/" + dir;
-            }
-        }
-        String fileName = path + "/" + licenseConfig.FILE_NAME;
+        File licenseFileDir = new File(filePath);
+        String fileName = licenseFileDir.getAbsolutePath() + "/" + licenseConfig.FILE_NAME;
         String license = "";
-
         File file = new File(fileName);
-
         if (!file.exists() || !file.isFile()) {
             throw new LicenseException("license file does not exist.");
         }
-
         try {
             InputStreamReader read = new InputStreamReader(
                     new FileInputStream(file), "UTF-8");
@@ -230,13 +234,10 @@ public class LicenseUtil {
         } catch (IOException e) {
             throw new LicenseException("license file read error.");
         }
-
         if (license.isEmpty()) {
             throw new LicenseException("license file has been corrupted.");
         }
-
         License bean = LicenseDecoder.decode(license);
-
         return bean;
     }
 }
