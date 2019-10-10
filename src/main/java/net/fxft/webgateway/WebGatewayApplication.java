@@ -22,7 +22,8 @@ import org.springframework.web.client.RestTemplate;
 public class WebGatewayApplication {
 
     public static void main(String[] args) {
-        System.setProperty("nacos.logging.path", "logs/nacos");
+        System.setProperty("nacos.logging.config", "classpath:log4j2-nacos.xml");
+//        System.setProperty("nacos.logging.path", "logs/nacos");
         ApplicationContext context = SpringApplication.run(WebGatewayApplication.class, args);
         SpringUtil.invokeAfterStartedRunner(context);
     }
