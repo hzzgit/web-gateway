@@ -19,7 +19,6 @@ public class CheckLicense implements AfterStartedRunner {
     @Autowired
     private LicenseValidator licenseValidator;
 
-
     @Override
     @Scheduled(cron = "0 1 0 * * ?")
     public void run() throws Exception {

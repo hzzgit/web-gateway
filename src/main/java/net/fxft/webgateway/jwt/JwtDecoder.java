@@ -15,5 +15,6 @@ public interface JwtDecoder {
 	DecodedJWT decodedJWTWithoutVerify(String token) throws Exception;
 
 	String getSubject(String token) throws Exception;
-	
+
+	void updateJwtSecret(String jwtSecret);
 }

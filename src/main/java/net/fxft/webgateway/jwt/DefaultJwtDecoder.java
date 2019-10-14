@@ -4,6 +4,8 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Component;
@@ -22,7 +24,9 @@ import java.util.Date;
 @Component
 @RefreshScope
 public class DefaultJwtDecoder implements JwtDecoder {
-
+	
+	private static final Logger log = LoggerFactory.getLogger(DefaultJwtDecoder.class);
+	
 	private JWTVerifier verifier;
 	@Value("${config.jwtSecret}")
 	private String jwtSecret;
@@ -52,6 +56,15 @@ public class DefaultJwtDecoder implements JwtDecoder {
 			return sub.trim();
 		}else {
 			throw new Exception("Token解析失败！");
+		}
+	}
+
+	@Override
+	public void updateJwtSecret(String jwtSecret) {
+		if(this.jwtSecret == null || !this.jwtSecret.equals(jwtSecret)) {
+			this.jwtSecret = jwtSecret;
+			this.init();
+			log.info("更新jwtSecret！" + jwtSecret);
 		}
 	}
 

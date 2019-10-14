@@ -5,10 +5,10 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class LicenseConfig {
-    private static final String FILE_PATH = "cert";
+//    private static final String FILE_PATH = "cert";
     public static final String FILE_NAME = "ascs.license";
-    public static final String SUBJECT = "fxft-ascs-license";
-    public static final String ISSUER = "fxft";
+//    public static final String SUBJECT = "fxft-ascs-license";
+//    public static final String ISSUER = "fxft";
 
     @Value("${license.code}")
     private String code;
@@ -36,7 +36,9 @@ public class LicenseConfig {
     }
 
     public void setRegisterUrl(String registerUrl) {
-        this.registerUrl = registerUrl;
+        if (registerUrl != null && registerUrl.length() > 0) {
+            this.registerUrl = AESUtil.decrypt(registerUrl);
+        }
     }
 
     public String getAuthIp() {
@@ -60,7 +62,9 @@ public class LicenseConfig {
     }
 
     public void setAuthNotifyUrl(String authNotifyUrl) {
-        this.authNotifyUrl = authNotifyUrl;
+        if(authNotifyUrl != null && authNotifyUrl.length() > 0) {
+            this.authNotifyUrl = AESUtil.decrypt(authNotifyUrl);
+        }
     }
 
     public String getFilePath() {

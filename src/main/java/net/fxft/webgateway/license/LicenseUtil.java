@@ -1,12 +1,15 @@
 package net.fxft.webgateway.license;
 
 import net.fxft.common.util.JacksonUtil;
+import net.fxft.webgateway.CheckLicense;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -26,12 +29,17 @@ import java.util.Optional;
  * @date 2019\9\20 0020 14:03
  */
 @Service
+@RestController
+@RequestMapping("/license")
 public class LicenseUtil {
 
     private static final Logger log = LoggerFactory.getLogger(LicenseUtil.class);
 
     @Autowired
     private LicenseConfig licenseConfig;
+    @Autowired
+    private CheckLicense checkLicense;
+
 
     /**
      * 注册
@@ -172,6 +180,22 @@ public class LicenseUtil {
             throw new LicenseException(e.getResponseBodyAsString(), e);
         } catch (Exception e) {
             throw new LicenseException("register error!", e);
+        }
+    }
+
+    @RequestMapping("updateLicense")
+    public void updateLicense(String license) {
+        try {
+            log.info("服务端更新License！"+license);
+            saveLicenseFile(license);
+        } catch (Exception e) {
+            log.error("服务端updateLicense出错！", e);
+        }
+        //再去服务端下载个License，然后验证
+        try {
+            checkLicense.run();
+        } catch (Exception e) {
+            log.error("checkLicense出错！", e);
         }
     }
 

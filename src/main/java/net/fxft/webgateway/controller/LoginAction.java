@@ -7,6 +7,7 @@ import net.fxft.common.log.AttrLog;
 import net.fxft.common.util.BasicUtil;
 import net.fxft.common.util.JacksonUtil;
 import net.fxft.webgateway.jwt.JwtEncoder;
+import net.fxft.webgateway.license.LicenseValidator;
 import net.fxft.webgateway.po.SystemConfigPO;
 import net.fxft.webgateway.po.UserInfo;
 import net.fxft.webgateway.route.SessionTimeoutException;
@@ -52,7 +53,8 @@ public class LoginAction extends GenericAction {
 	private int errorLoginTimes;
 	@Autowired
 	private RedisUtil redisUtil;
-
+	@Autowired
+	private LicenseValidator licenseValidator;
 
 	@RequestMapping("/login2.action")
 	public Mono<JsonMessage> login3(ServerHttpRequest request, ServerWebExchange exchange){
@@ -73,6 +75,9 @@ public class LoginAction extends GenericAction {
 					.log("randomCode", randomCode)
 					.log("codeKey", codeKey);
 			try {
+				if (licenseValidator.isStopService()) {
+					throw new SessionTimeoutException("License已失效!");
+				}
 				if (StringUtil.isNullOrEmpty(username)) {
 					throw new SessionTimeoutException("用户名不能为空!");
 				}
@@ -278,7 +283,9 @@ public class LoginAction extends GenericAction {
             return new JsonMessage(false, "key不能为空！");
         }
         log.debug("app登录：{}" , dto.toString());
-
+		if (licenseValidator.isStopService()) {
+			return new JsonMessage(false, "License已失效！");
+		}
         UserInfo qruser = null;
         try {
             String subject = tokenService.getJwtDecoder().getSubject(key);

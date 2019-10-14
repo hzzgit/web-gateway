@@ -77,6 +77,15 @@ public class DefaultJwtEncoder implements JwtEncoder {
 		return ui;
 	}
 
+	@Override
+	public void updateJwtSecret(String jwtSecret) {
+		if(this.jwtSecret == null || !this.jwtSecret.equals(jwtSecret)) {
+			this.jwtSecret = jwtSecret;
+			this.init();
+			log.info("更新jwtSecret！" + jwtSecret);
+		}
+	}
+
 	public String encodeQRLoginSubject(UserInfo user) {
 		String token = JWT.create().withSubject(createSubject(user))
 				.withExpiresAt(new Date(System.currentTimeMillis() + appQRLoginJwtExpireMinute * 60000))

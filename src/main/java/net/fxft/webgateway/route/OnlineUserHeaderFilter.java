@@ -1,6 +1,7 @@
 package net.fxft.webgateway.route;
 
 import net.fxft.cloud.redis.RedisUtil;
+import net.fxft.webgateway.license.LicenseValidator;
 import net.fxft.webgateway.service.JwtTokenService;
 import net.fxft.webgateway.service.JwtTokenService.ValidateTokenResult;
 import net.fxft.webgateway.service.UserInfoCacheService;
@@ -36,6 +37,8 @@ public class OnlineUserHeaderFilter implements GatewayFilter {
     private String ssoSign;
     @Autowired
     private RedisUtil redis;
+    @Autowired
+    private LicenseValidator licenseValidator;
 
     static void removeHeaders(HttpHeaders hd) {
         hd.remove("ssoSign");
@@ -49,6 +52,9 @@ public class OnlineUserHeaderFilter implements GatewayFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        if (licenseValidator.isStopService()) {
+            throw new SessionTimeoutException("License error.");
+        }
         boolean wt = (boolean) exchange.getAttributes().getOrDefault(AutoChangeURIFilter.Without_Token, false);
         if (wt) {
             ServerHttpRequest request = exchange.getRequest().mutate().headers(hd -> {

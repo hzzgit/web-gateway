@@ -1,6 +1,8 @@
 package net.fxft.webgateway.license;
 
 import net.fxft.common.jdbc.JdbcUtil;
+import net.fxft.webgateway.jwt.JwtDecoder;
+import net.fxft.webgateway.jwt.JwtEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,11 +17,18 @@ import org.springframework.stereotype.Service;
 public class LicenseValidator {
 
     private static final Logger log = LoggerFactory.getLogger(LicenseValidator.class);
-    
+
+    private boolean stopService = false;
+
     @Autowired
     private LicenseUtil licenseUtil;
     @Autowired
     private JdbcUtil jdbc;
+    @Autowired
+    private JwtEncoder jwtEncoder;
+    @Autowired
+    private JwtDecoder jwtDecoder;
+
 
     /**
      * 验证证书合法性
@@ -51,15 +60,26 @@ public class LicenseValidator {
             if (deviceCount > bean.getDeviceAmount()) {
                 throw new LicenseException("设备数量超过限制！limit=" + bean.getDeviceAmount() + "; real=" + deviceCount);
             }
+            if (stopService) {
+                log.info("验证证书成功，重新开启服务！");
+                stopService = false;
+            }
+            jwtEncoder.updateJwtSecret(bean.getJwtSecretKey());
+            jwtDecoder.updateJwtSecret(bean.getJwtSecretKey());
         } catch (LicenseException e) {
-            log.error("验证证书失败，强制退出！", e);
+            log.error("验证证书失败，停止服务！", e);
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e1) {
                 e1.printStackTrace();
             }
-            System.exit(0);
+            stopService = true;
+//            System.exit(0);
         }
+    }
+
+    public final boolean isStopService() {
+        return stopService;
     }
 
 }

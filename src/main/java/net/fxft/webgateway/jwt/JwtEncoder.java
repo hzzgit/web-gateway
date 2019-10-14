@@ -15,5 +15,6 @@ public interface JwtEncoder {
 	String encodeQRLoginSubject(UserInfo user);
 	int getJwtExpireMinute();
 	UserInfo parseSubject(String subject);
+	void updateJwtSecret(String jwtSecret);
 	
 }
