@@ -32,6 +32,12 @@ public class GatewayRoutes {
                         "/getMainMenuTree.action",
                         "/mapRefresh.action",
                         "/getLockUser.action",
+                        "/functionModel/**",
+                        "/funcpriv/**",
+                        "/role/**",
+                        "/user/**",
+                        "/dep/**",
+                        "/basicData/**",
                         "/unLockUser.action"
 //                        "/platformconfig/getGlobalPlatfromConfig.action",
 //                        "/appimg/getAppQRCodeImg.action",

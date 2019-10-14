@@ -40,7 +40,10 @@ public class OperationLog implements java.io.Serializable {
     private Integer channel;
     private String operationType;
     private String plateNo;
-
+    public OperationLog()
+    {
+        createDate = new Date();
+    }
     public Integer getLogId(){
         return this.logId;
     }
