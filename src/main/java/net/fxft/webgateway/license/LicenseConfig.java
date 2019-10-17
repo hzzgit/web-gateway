@@ -32,13 +32,14 @@ public class LicenseConfig {
     }
 
     public String getRegisterUrl() {
+        if (registerUrl != null && registerUrl.length() > 0) {
+            return AESUtil.decrypt(registerUrl);
+        }
         return registerUrl;
     }
 
     public void setRegisterUrl(String registerUrl) {
-        if (registerUrl != null && registerUrl.length() > 0) {
-            this.registerUrl = AESUtil.decrypt(registerUrl);
-        }
+        this.registerUrl = registerUrl;
     }
 
     public String getAuthIp() {
@@ -58,13 +59,14 @@ public class LicenseConfig {
     }
 
     public String getAuthNotifyUrl() {
+        if(authNotifyUrl != null && authNotifyUrl.length() > 0) {
+            return AESUtil.decrypt(authNotifyUrl);
+        }
         return authNotifyUrl;
     }
 
     public void setAuthNotifyUrl(String authNotifyUrl) {
-        if(authNotifyUrl != null && authNotifyUrl.length() > 0) {
-            this.authNotifyUrl = AESUtil.decrypt(authNotifyUrl);
-        }
+        this.authNotifyUrl = authNotifyUrl;
     }
 
     public String getFilePath() {
