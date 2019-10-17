@@ -1,6 +1,7 @@
 package net.fxft.webgateway.license;
 
 import net.fxft.common.jdbc.JdbcUtil;
+import net.fxft.common.util.JacksonUtil;
 import net.fxft.webgateway.jwt.JwtDecoder;
 import net.fxft.webgateway.jwt.JwtEncoder;
 import org.slf4j.Logger;
@@ -39,10 +40,11 @@ public class LicenseValidator {
         License bean;
         try {
             bean = licenseUtil.loadLicense();
+            log.info("license=" + JacksonUtil.toJsonString(bean));
             long now = System.currentTimeMillis();
-            if (bean.getNotBeforeAt() > (now)) {
-                throw new LicenseException("License未到生效时间！activeTime=" + bean.getNotBeforeAt());
-            }
+//            if (bean.getNotBeforeAt() > (now)) {
+//                throw new LicenseException("License未到生效时间！activeTime=" + bean.getNotBeforeAt());
+//            }
             if (bean.getExpirationState() == 0 && bean.getExpirationAt() < (now)) {
                 throw new LicenseException("License已过期！expire=" + bean.getExpirationAt());
             }

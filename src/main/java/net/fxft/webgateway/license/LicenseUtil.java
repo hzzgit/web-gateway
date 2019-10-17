@@ -1,5 +1,6 @@
 package net.fxft.webgateway.license;
 
+import net.fxft.common.util.BasicUtil;
 import net.fxft.common.util.JacksonUtil;
 import net.fxft.webgateway.CheckLicense;
 import org.slf4j.Logger;
@@ -55,60 +56,6 @@ public class LicenseUtil {
         register(url, code, authIp, authPort, notifyUrl);
     }
 
-//    /**
-//     * @param code
-//     * @throws LicenseException
-//     */
-//    public void register(String code) throws LicenseException {
-//        String url = licenseConfig.getRegisterUrl();
-//        String authIp = licenseConfig.getAuthIp();
-//        Integer authPort = licenseConfig.getAuthPort();
-//        String notifyUrl = licenseConfig.getAuthNotifyUrl();
-//        register(url, code, authIp, authPort, notifyUrl);
-//    }
-
-//    /**
-//     * 注册
-//     *
-//     * @param authIp
-//     * @param code
-//     * @throws LicenseException
-//     */
-//    public void register(String code, String authIp) throws LicenseException {
-//        String url = licenseConfig.getRegisterUrl();
-//        Integer authPort = licenseConfig.getAuthPort();
-//        String notifyUrl = licenseConfig.getAuthNotifyUrl();
-//        register(url, code, authIp, authPort, notifyUrl);
-//    }
-
-//    /**
-//     * 注册
-//     *
-//     * @param authIp
-//     * @param authPort
-//     * @param code
-//     * @throws LicenseException
-//     */
-//    public void register(String code, String authIp, Integer authPort) throws LicenseException {
-//        String url = licenseConfig.getRegisterUrl();
-//        String notifyUrl = licenseConfig.getAuthNotifyUrl();
-//        register(url, code, authIp, authPort, notifyUrl);
-//    }
-
-//    /**
-//     * 注册
-//     *
-//     * @param code
-//     * @param authIp
-//     * @param authPort
-//     * @param notifyUrl
-//     * @throws LicenseException
-//     */
-//    public void register(String code, String authIp, Integer authPort, String notifyUrl) throws LicenseException {
-//        String url = licenseConfig.getRegisterUrl();
-//        register(url, code, authIp, authPort, notifyUrl);
-//    }
-
     /**
      * 注册
      *
@@ -128,6 +75,7 @@ public class LicenseUtil {
         if (systemData.getSystemUuId() == null || systemData.getSystemUuId().equals("")) {
             throw new LicenseException("Not found SystemUuId, Please use administrator privileges to run the program.");
         }
+        log.info("systemUuid=" + systemData.getSystemUuId() + "; processorId=" + systemData.getProcessorId());
         SystemDataUpload sdup = new SystemDataUpload();
         sdup.setSystemUuId(systemData.getSystemUuId());
         sdup.setProcessorId(systemData.getProcessorId());
@@ -183,7 +131,7 @@ public class LicenseUtil {
         }
     }
 
-    @RequestMapping("updateLicense")
+    @RequestMapping("/updateLicense")
     public void updateLicense(String license) {
         try {
             log.info("服务端更新License！"+license);
@@ -221,7 +169,9 @@ public class LicenseUtil {
                 throw e;
             }
         }
-
+        if (BasicUtil.isEmpty(license)) {
+            log.info("license文件设置为空！");
+        }
         //写入文件
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
@@ -243,11 +193,11 @@ public class LicenseUtil {
         String filePath = licenseConfig.getFilePath();
         File licenseFileDir = new File(filePath);
         String fileName = licenseFileDir.getAbsolutePath() + "/" + licenseConfig.FILE_NAME;
-        String license = "";
         File file = new File(fileName);
         if (!file.exists() || !file.isFile()) {
             throw new LicenseException("license file does not exist.");
         }
+        String license = "";
         try {
             InputStreamReader read = new InputStreamReader(
                     new FileInputStream(file), "UTF-8");
@@ -258,8 +208,8 @@ public class LicenseUtil {
         } catch (IOException e) {
             throw new LicenseException("license file read error.");
         }
-        if (license.isEmpty()) {
-            throw new LicenseException("license file has been corrupted.");
+        if (license == null || license.isEmpty()) {
+            throw new LicenseException("license file is empty.");
         }
         License bean = LicenseDecoder.decode(license);
         return bean;

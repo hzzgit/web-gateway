@@ -7,7 +7,7 @@ public class AESTest {
 
     @Test
     public void encode() {
-        String encstr = AESUtil.encrypt("http://118.31.5.186:9200/api/register");
+        String encstr = AESUtil.encrypt("http://112.124.202.93:8012/license/updateLicense");
         System.out.println(encstr);
         System.out.println(AESUtil.decrypt(encstr));
     }
