@@ -37,6 +37,7 @@ public class GatewayRoutes {
                         "/role/**",
                         "/user/**",
                         "/dep/**",
+                        "/BigscreenAction/**",
                         "/basicData/getMenuTree.action",
                         "/basicData/funcpriv/query.action",
                         "/unLockUser.action"
