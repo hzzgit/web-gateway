@@ -37,7 +37,9 @@ public class GatewayRoutes {
                         "/role/**",
                         "/user/**",
                         "/dep/**",
-                        "/basicData/**",
+                        "/BigscreenAction/**",
+                        "/basicData/getMenuTree.action",
+                        "/basicData/funcpriv/query.action",
                         "/unLockUser.action"
 //                        "/platformconfig/getGlobalPlatfromConfig.action",
 //                        "/appimg/getAppQRCodeImg.action",
