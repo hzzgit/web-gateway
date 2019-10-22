@@ -76,7 +76,7 @@ public class LoginAction extends GenericAction {
 					.log("codeKey", codeKey);
 			try {
 				if (licenseValidator.isStopService()) {
-					throw new SessionTimeoutException("License已失效!");
+					throw new SessionTimeoutException("证书已失效，请联系管理员!");
 				}
 				if (StringUtil.isNullOrEmpty(username)) {
 					throw new SessionTimeoutException("用户名不能为空!");
@@ -284,7 +284,7 @@ public class LoginAction extends GenericAction {
         }
         log.debug("app登录：{}" , dto.toString());
 		if (licenseValidator.isStopService()) {
-			return new JsonMessage(false, "License已失效！");
+			return new JsonMessage(false, "证书已失效，请联系管理员！");
 		}
         UserInfo qruser = null;
         try {
