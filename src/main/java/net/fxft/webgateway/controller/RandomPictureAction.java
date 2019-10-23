@@ -1,6 +1,7 @@
 package net.fxft.webgateway.controller;
 
 import io.netty.buffer.UnpooledByteBufAllocator;
+import net.fxft.webgateway.route.GatewayRoutes;
 import net.fxft.webgateway.service.AutoCacheService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +28,7 @@ import java.util.Random;
  * @author admin
  */
 @Controller
+@RequestMapping({"/", GatewayRoutes.Base_Prefix})
 public class RandomPictureAction extends GenericAction {
 
     private static final Logger logger = LoggerFactory.getLogger(RandomPictureAction.class);
