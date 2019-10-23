@@ -10,6 +10,7 @@ import net.fxft.webgateway.jwt.JwtEncoder;
 import net.fxft.webgateway.license.LicenseValidator;
 import net.fxft.webgateway.po.SystemConfigPO;
 import net.fxft.webgateway.po.UserInfo;
+import net.fxft.webgateway.route.GatewayRoutes;
 import net.fxft.webgateway.route.SessionTimeoutException;
 import net.fxft.webgateway.util.AuthenticationCodeUtil;
 import net.fxft.webgateway.vo.AppQrLoginDto;
@@ -38,6 +39,7 @@ import java.util.Map;
  *
  */
 @RestController
+@RequestMapping({"/", GatewayRoutes.Base_Prefix})
 public class LoginAction extends GenericAction {
 
 	private static final Logger log = LoggerFactory.getLogger(LoginAction.class);

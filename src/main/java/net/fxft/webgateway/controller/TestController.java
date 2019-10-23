@@ -3,6 +3,7 @@ package net.fxft.webgateway.controller;
 
 import com.alibaba.fastjson.JSON;
 import io.netty.buffer.UnpooledByteBufAllocator;
+import net.fxft.webgateway.route.GatewayRoutes;
 import net.fxft.webgateway.vo.JsonMessage;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
@@ -39,6 +40,7 @@ import java.util.Map;
  * Created by Goddy on 2018/11/9.
  */
 @RestController
+@RequestMapping({"/", GatewayRoutes.Base_Prefix})
 public class TestController {
     private String fileName = "测试.xlsx";
 
