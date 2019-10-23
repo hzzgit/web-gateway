@@ -86,6 +86,7 @@ public class GatewayRoutes {
                         "/vehicleActionAPI/**",
                         "/appimg/getAppQRCodeImg.action",
                         "/AppQRCodePicture/**",
+                        "/platformconfig/getIpDomainPlatfromConfig.action",
                         "/platformconfig/getGlobalPlatfromConfig.action"))
                         .filters(f -> f.filter(removeHeaderFilter))
                         .uri("lb://subiaoweb/")
