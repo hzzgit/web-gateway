@@ -38,6 +38,7 @@ public class GatewayRoutes {
                         "/vehicleActionAPI/**",
                         "/appimg/getAppQRCodeImg.action",
                         "/AppQRCodePicture/**",
+                        "/globalplatformconfig/**",
                         "/platformconfig/getIpDomainPlatfromConfig.action",
                         "/platformconfig/getGlobalPlatfromConfig.action"))
                         .filters(f -> f.filter(removeHeaderFilter))
