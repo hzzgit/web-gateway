@@ -47,6 +47,7 @@ public class OnlineUserHeaderFilter implements GatewayFilter {
         hd.remove("ssoUserType");
         hd.remove("origin");
         hd.remove("Authorization");
+        hd.remove("authorization");
     }
 
 
@@ -63,6 +64,9 @@ public class OnlineUserHeaderFilter implements GatewayFilter {
             return chain.filter(exchange.mutate().request(request).build());
         }else {
             String token = exchange.getRequest().getHeaders().getFirst("Authorization");
+            if (token == null) {
+                token = exchange.getRequest().getHeaders().getFirst("authorization");
+            }
             if (token == null) {
                 token = exchange.getRequest().getQueryParams().getFirst("access_token");
             }

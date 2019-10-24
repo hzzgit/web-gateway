@@ -62,6 +62,9 @@ public class JwtTokenService {
     public UserInfo getUserInfoFromJwtToken(ServerHttpRequest request) throws Exception{
         String token = request.getHeaders().getFirst("Authorization");
         if (token == null) {
+            token = request.getHeaders().getFirst("authorization");
+        }
+        if (token == null) {
             throw new Exception("您还没有登录！");
         } else {
             String subject = jwtDecoder.getSubject(token);

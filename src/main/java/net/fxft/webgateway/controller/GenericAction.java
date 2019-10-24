@@ -79,6 +79,9 @@ public class GenericAction {
     public String getJwtToken(ServerHttpRequest request) {
         String token = request.getHeaders().getFirst("Authorization");
         if (token == null) {
+            token = request.getHeaders().getFirst("authorization");
+        }
+        if (token == null) {
             return null;
         }else {
             if (tokenService.isLogoutToken(token)) {
