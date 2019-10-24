@@ -29,6 +29,20 @@ public class GatewayRoutes {
         String[] urlarrsubiaoweb = noLoginUrls_subiaoweb.split(",");
         //route是有序的
         return builder.routes()
+                //对外接口不用登录
+                .route(r -> r.path(toStringArray(urlarrsubiaoweb,
+                        "/interfaceAPI/**",
+                        "/alarmSearchActionAPI/**",
+                        "/gpsApi/**",
+                        "/transparentSendAPI/**",
+                        "/vehicleActionAPI/**",
+                        "/appimg/getAppQRCodeImg.action",
+                        "/AppQRCodePicture/**",
+                        "/platformconfig/getIpDomainPlatfromConfig.action",
+                        "/platformconfig/getGlobalPlatfromConfig.action"))
+                        .filters(f -> f.filter(removeHeaderFilter))
+                        .uri("lb://subiaoweb/")
+                )
                 .route(r -> r.path(
                         toStringArray("/getMenuTree.action",
                         "/getMainMenuTree.action",
@@ -43,8 +57,6 @@ public class GatewayRoutes {
                         "/basicData/getMenuTree.action",
                         "/basicData/funcpriv/query.action",
                         "/unLockUser.action")
-//                        "/platformconfig/getGlobalPlatfromConfig.action",
-//                        "/appimg/getAppQRCodeImg.action",
                         )
                         .filters(f -> f.filter(removeHeaderFilter).filter(onlineUserHeaderFilter))
                         .uri("lb://security/")
@@ -77,20 +89,6 @@ public class GatewayRoutes {
                         "/vehicle/searchbyvehicle.action"))
                         .filters(f -> f.filter(removeHeaderFilter).filter(onlineUserHeaderFilter))
                         .uri("lb://monitorwebapi/"))
-                //对外接口不用登录
-                .route(r -> r.path(toStringArray(urlarrsubiaoweb,
-                        "/interfaceAPI/**",
-                        "/alarmSearchActionAPI/**",
-                        "/gpsApi/**",
-                        "/transparentSendAPI/**",
-                        "/vehicleActionAPI/**",
-                        "/appimg/getAppQRCodeImg.action",
-                        "/AppQRCodePicture/**",
-                        "/platformconfig/getIpDomainPlatfromConfig.action",
-                        "/platformconfig/getGlobalPlatfromConfig.action"))
-                        .filters(f -> f.filter(removeHeaderFilter))
-                        .uri("lb://subiaoweb/")
-                )
                 .route(r -> r.path(toStringArray("/**"))
                         .filters(f -> f.filter(removeHeaderFilter).filter(onlineUserHeaderFilter))
                         .uri("lb://subiaoweb/")
