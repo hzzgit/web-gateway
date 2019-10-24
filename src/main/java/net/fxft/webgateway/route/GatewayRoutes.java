@@ -14,6 +14,8 @@ import java.util.List;
 public class GatewayRoutes {
 
     @Autowired
+    private AutoCutPathFilter autoCutPathFilter;
+    @Autowired
     private RemoveHeaderFilter removeHeaderFilter;
     @Autowired
     private OnlineUserHeaderFilter onlineUserHeaderFilter;
@@ -41,7 +43,7 @@ public class GatewayRoutes {
                         "/globalplatformconfig/**",
                         "/platformconfig/getIpDomainPlatfromConfig.action",
                         "/platformconfig/getGlobalPlatfromConfig.action"))
-                        .filters(f -> f.filter(removeHeaderFilter))
+                        .filters(f -> f.filter(autoCutPathFilter).filter(removeHeaderFilter))
                         .uri("lb://subiaoweb/")
                 )
                 .route(r -> r.path(
@@ -59,26 +61,26 @@ public class GatewayRoutes {
                         "/basicData/funcpriv/query.action",
                         "/unLockUser.action")
                         )
-                        .filters(f -> f.filter(removeHeaderFilter).filter(onlineUserHeaderFilter))
+                        .filters(f -> f.filter(autoCutPathFilter).filter(onlineUserHeaderFilter))
                         .uri("lb://security/")
                 )
                 .route(r -> r.path(toStringArray("/ccreport/**",
                         "/logisreport/**",
                         "/newreport/**",
                         "/safedriving/**"))
-                        .filters(f -> f.filter(removeHeaderFilter).filter(onlineUserHeaderFilter))
+                        .filters(f -> f.filter(autoCutPathFilter).filter(onlineUserHeaderFilter))
                         .uri("lb://financialreportwebapi/"))
                 .route(r -> r.path(toStringArray("/reportweb/**"))
-                        .filters(f -> f.filter(removeHeaderFilter).filter(onlineUserHeaderFilter))
+                        .filters(f -> f.filter(autoCutPathFilter).filter(onlineUserHeaderFilter))
                         .uri("lb://reportweb/"))
                 //gps服务
                 .route(r -> r.path(toStringArray("/historyGpsInfo/**", "/track/**"))
-                        .filters(f -> f.filter(removeHeaderFilter).filter(onlineUserHeaderFilter))
+                        .filters(f -> f.filter(autoCutPathFilter).filter(onlineUserHeaderFilter))
                         .uri("lb://gpswebapi/"))
                 //视频
                 .route(r -> r.path(toStringArray("/videoCommand/**", "/videoDownload/**",
                         "/videoPlayBack/**", "/videoRequest/**", "/videoResourceSearch/**"))
-                        .filters(f -> f.filter(removeHeaderFilter).filter(onlineUserHeaderFilter))
+                        .filters(f -> f.filter(autoCutPathFilter).filter(onlineUserHeaderFilter))
                         .uri("lb://videowebapi/"))
                 //实时监控
                 .route(r -> r.path(toStringArray("/board/**", "/MobilerealData/**",
@@ -88,10 +90,10 @@ public class GatewayRoutes {
                         "/vehicle/getDepTree.action",
                         "/vehicle/getDepTreexiamen.action",
                         "/vehicle/searchbyvehicle.action"))
-                        .filters(f -> f.filter(removeHeaderFilter).filter(onlineUserHeaderFilter))
+                        .filters(f -> f.filter(autoCutPathFilter).filter(onlineUserHeaderFilter))
                         .uri("lb://monitorwebapi/"))
                 .route(r -> r.path(toStringArray("/**"))
-                        .filters(f -> f.filter(removeHeaderFilter).filter(onlineUserHeaderFilter))
+                        .filters(f -> f.filter(autoCutPathFilter).filter(onlineUserHeaderFilter))
                         .uri("lb://subiaoweb/")
                 )
 //                .route(r -> r.path("/login/**")

@@ -87,7 +87,7 @@ public class OnlineUserHeaderFilter implements GatewayFilter {
             }
             if (token == null) {
                 Route route = exchange.getAttribute(ServerWebExchangeUtils.GATEWAY_ROUTE_ATTR);
-                log.error("缺少token！path=" + exchange.getRequest().getPath() + "; route=" + route);
+                log.error("缺少token！path=" + exchange.getRequest().getPath() + "; header=" + exchange.getRequest().getHeaders() + "; route=" + route);
                 throw new SessionTimeoutException("session timeout.");
             } else {
                 final ValidateTokenResult validateTokenResult = tokenService.validateAndChangeToken(token, exchange.getRequest());
