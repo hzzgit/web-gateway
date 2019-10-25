@@ -50,7 +50,7 @@ public class LicenseUtil {
     public  void register() throws LicenseException {
         String url = licenseConfig.getRegisterUrl();
         String authIp = licenseConfig.getAuthIp();
-        Integer authPort = licenseConfig.getAuthPort();
+        String authPort = licenseConfig.getAuthPort();
         String code = licenseConfig.getCode();
         String notifyUrl = licenseConfig.getAuthNotifyUrl();
         register(url, code, authIp, authPort, notifyUrl);
@@ -66,7 +66,7 @@ public class LicenseUtil {
      * @param notifyUrl
      * @throws LicenseException
      */
-    private void register(String url, String code, String authIp, Integer authPort, String notifyUrl) throws LicenseException {
+    private void register(String url, String code, String authIp, String authPort, String notifyUrl) throws LicenseException {
         if (url == null || url.equals("")) {
             log.info("没有配置授权服务器地址，更新License失败！");
             return;
@@ -110,7 +110,7 @@ public class LicenseUtil {
             map.put("notifyUrl", notifyUrl);
         }
 
-        if (authPort != null && authPort > 0) {
+        if (authPort != null && authPort.length() > 0) {
             map.put("authPort", authPort);
         }
         MultiValueMap<String, Object> postParams = new LinkedMultiValueMap();
