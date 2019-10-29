@@ -17,7 +17,7 @@ public class LicenseConfig {
     @Value("${license.authIp}")
     private String authIp;
     @Value("${license.authPort}")
-    private int authPort;
+    private String authPort;
     @Value("${license.authNotifyUrl}")
     private String authNotifyUrl;
     @Value("${license.filePath}")
@@ -50,11 +50,11 @@ public class LicenseConfig {
         this.authIp = authIp;
     }
 
-    public int getAuthPort() {
+    public String getAuthPort() {
         return authPort;
     }
 
-    public void setAuthPort(int authPort) {
+    public void setAuthPort(String authPort) {
         this.authPort = authPort;
     }
 

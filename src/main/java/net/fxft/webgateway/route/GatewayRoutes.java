@@ -92,6 +92,10 @@ public class GatewayRoutes {
                         "/vehicle/searchbyvehicle.action"))
                         .filters(f -> f.filter(autoCutPathFilter).filter(onlineUserHeaderFilter))
                         .uri("lb://monitorwebapi/"))
+                //人脸识别
+                .route(r -> r.path(toStringArray("/facerecognition/**"))
+                        .filters(f -> f.filter(autoCutPathFilter).filter(onlineUserHeaderFilter))
+                        .uri("lb://facerecognition/"))
                 .route(r -> r.path(toStringArray("/**"))
                         .filters(f -> f.filter(autoCutPathFilter).filter(onlineUserHeaderFilter))
                         .uri("lb://subiaoweb/")
