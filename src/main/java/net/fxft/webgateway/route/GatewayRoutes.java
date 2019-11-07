@@ -94,6 +94,9 @@ public class GatewayRoutes {
                         .filters(f -> f.filter(autoCutPathFilter).filter(onlineUserHeaderFilter))
                         .uri("lb://monitorwebapi/"))
                 //人脸识别
+                .route(r -> r.path(toStringArray("/facerecognition/getFaceCompareResult", "/facerecognition/getAccStatus"))
+                        .filters(f -> f.filter(autoCutPathFilter).filter(removeHeaderFilter))
+                        .uri("lb://facerecognition/"))
                 .route(r -> r.path(toStringArray("/facerecognition/**"))
                         .filters(f -> f.filter(autoCutPathFilter).filter(onlineUserHeaderFilter))
                         .uri("lb://facerecognition/"))
