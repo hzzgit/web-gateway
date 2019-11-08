@@ -17,14 +17,16 @@
     <properties>
         <java.version>1.8</java.version>
         <spring-cloud.version>Greenwich.SR2</spring-cloud.version>
-        <ascs-gateway-protocol.version>0.3.78_RELEASE</ascs-gateway-protocol.version>
+        <fxft-cloud.version>1.2.98_RELEASE</fxft-cloud.version>
+        <ascs-gateway-protocol.version>0.5.14_RELEASE</ascs-gateway-protocol.version>
+        <nacos.version>0.2.2.RELEASE</nacos.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>net.fxft</groupId>
             <artifactId>fxft-cloud</artifactId>
-            <version>1.2.85_RELEASE</version>
+            <version>${fxft-cloud.version}</version>
         </dependency>
         <dependency>
             <groupId>net.fxft</groupId>
@@ -38,12 +40,12 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
-            <version>0.2.2.RELEASE</version>
+            <version>${nacos.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
-            <version>0.2.2.RELEASE</version>
+            <version>${nacos.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
