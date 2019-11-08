@@ -45,6 +45,7 @@ public class LicenseValidator {
 //            if (bean.getNotBeforeAt() > (now)) {
 //                throw new LicenseException("License未到生效时间！activeTime=" + bean.getNotBeforeAt());
 //            }
+
             if (bean.getExpirationState() == 0 && bean.getExpirationAt() < (now)) {
                 throw new LicenseException("License已过期！expire=" + bean.getExpirationAt());
             }

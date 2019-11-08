@@ -22,7 +22,7 @@ public class CheckLicense implements AfterStartedRunner {
     @Override
     @Scheduled(cron = "0 1 0 * * ?")
     public void run() throws Exception {
-        try {
+        /*try {
             log.info("开始更新License！");
             long l1 = System.currentTimeMillis();
             licenseUtil.register();
@@ -39,6 +39,6 @@ public class CheckLicense implements AfterStartedRunner {
             log.info("完成验证License！耗时=" + (l2 - l1));
         } catch (Exception e) {
             log.error("验证license出错！", e);
-        }
+        }*/
     }
 }

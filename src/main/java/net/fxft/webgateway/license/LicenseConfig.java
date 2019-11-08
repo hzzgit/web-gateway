@@ -10,17 +10,17 @@ public class LicenseConfig {
 //    public static final String SUBJECT = "fxft-ascs-license";
 //    public static final String ISSUER = "fxft";
 
-    @Value("${license.code}")
+    @Value("${license.code:}")
     private String code;
-    @Value("${license.registerUrl}")
+    @Value("${license.registerUrl:}")
     private String registerUrl;
-    @Value("${license.authIp}")
+    @Value("${license.authIp:}")
     private String authIp;
-    @Value("${license.authPort}")
+    @Value("${license.authPort:}")
     private String authPort;
-    @Value("${license.authNotifyUrl}")
+    @Value("${license.authNotifyUrl:}")
     private String authNotifyUrl;
-    @Value("${license.filePath}")
+    @Value("${license.filePath:}")
     private String filePath;
 
     public String getCode() {
