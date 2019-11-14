@@ -30,7 +30,7 @@ public class GatewayRoutes {
     public RouteLocator routeLocator(RouteLocatorBuilder builder) {
         String[] urlarrsubiaoweb = noLoginUrls_subiaoweb.split(",");
         //route是有序的
-        return builder.routes()
+        RouteLocator rl = builder.routes()
                 //对外接口不用登录
                 .route(r -> r.path(toStringArray(urlarrsubiaoweb,
                         "/interfaceAPI/**",
@@ -122,6 +122,7 @@ public class GatewayRoutes {
 //                        .uri("https://jascsold.api.jjicar.net")
 //                )
                 .build();
+        return rl;
     }
 
     private String[] toStringArray(String... str) {
