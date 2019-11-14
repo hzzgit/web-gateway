@@ -20,8 +20,9 @@ public class LicenseController {
     public String getVehicleLimitCount() {
         return RestExecuter.build(log, "getVehicleLimitCount")
                 .run(alog -> {
-                    License bean = licenseUtil.loadLicense();
-                    return bean.getDeviceAmount();
+//                    License bean = licenseUtil.loadLicense();
+//                    return bean.getDeviceAmount();
+                    return Integer.MAX_VALUE;
                 });
     }
 

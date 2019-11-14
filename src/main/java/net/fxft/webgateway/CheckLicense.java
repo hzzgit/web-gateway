@@ -22,6 +22,7 @@ public class CheckLicense implements AfterStartedRunner {
     @Override
     @Scheduled(cron = "0 1 0 * * ?")
     public void run() throws Exception {
+        //LicenseController 这个类中也要修改
         /*try {
             log.info("开始更新License！");
             long l1 = System.currentTimeMillis();
