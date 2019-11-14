@@ -37,7 +37,6 @@ public class CorsConfig {
         corsConfig.addAllowedMethod("*");
         corsConfig.addAllowedHeader("*");
         corsConfig.setAllowCredentials(true);
-        updateOrgin();
         log.info("cors.AllowedOrigin=" + origins);
         for (String origin : origins.split(",")) {
             origin = origin.trim();
@@ -45,6 +44,7 @@ public class CorsConfig {
                 addOrigin(origin);
             }
         }
+        updateOrgin();
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource(new PathPatternParser());
         source.registerCorsConfiguration("/**", corsConfig);
         return new CorsWebFilter(source);
@@ -53,6 +53,7 @@ public class CorsConfig {
     public static void addOrigin(String origin) {
         corsConfig.addAllowedOrigin(origin);
         orginSet.add(origin);
+        log.info("添加跨域origin: " + origin);
     }
 
     @Scheduled(fixedDelay = 30000)
