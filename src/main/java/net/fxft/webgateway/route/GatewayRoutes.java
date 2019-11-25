@@ -56,6 +56,7 @@ public class GatewayRoutes {
                         "/role/**",
                         "/user/**",
                         "/dep/**",
+                        "/securityapi/**",
                         "/BigscreenAction/**",
                         "/keyvalue/**",
                         "/basicData/getMenuTree.action",
