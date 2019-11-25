@@ -2,12 +2,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.1.7.RELEASE</version>
-        <relativePath/> <!-- lookup parent from repository -->
-    </parent>
+    <!--<parent>-->
+        <!--<groupId>org.springframework.boot</groupId>-->
+        <!--<artifactId>spring-boot-starter-parent</artifactId>-->
+        <!--<version>2.1.7.RELEASE</version>-->
+        <!--<relativePath/> &lt;!&ndash; lookup parent from repository &ndash;&gt;-->
+    <!--</parent>-->
     <groupId>net.fxft</groupId>
     <artifactId>web-gateway</artifactId>
     <version>0.0.1-SNAPSHOT</version>
@@ -16,22 +16,17 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <spring-cloud.version>Greenwich.SR2</spring-cloud.version>
-        <fxft-cloud.version>1.2.98_RELEASE</fxft-cloud.version>
-        <ascs-gateway-protocol.version>0.5.14_RELEASE</ascs-gateway-protocol.version>
-        <nacos.version>0.2.2.RELEASE</nacos.version>
+        <ascs-dependencies.version>0.0.16_RELEASE</ascs-dependencies.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>net.fxft</groupId>
             <artifactId>fxft-cloud</artifactId>
-            <version>${fxft-cloud.version}</version>
         </dependency>
         <dependency>
             <groupId>net.fxft</groupId>
             <artifactId>ascs-gateway-protocol</artifactId>
-            <version>${ascs-gateway-protocol.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
@@ -40,12 +35,10 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
-            <version>${nacos.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
-            <version>${nacos.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -106,14 +99,15 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-dependencies</artifactId>
-                <version>${spring-cloud.version}</version>
+                <groupId>net.fxft</groupId>
+                <artifactId>ascs-dependencies</artifactId>
+                <version>${ascs-dependencies.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
+
 
     <repositories>
         <repository>
