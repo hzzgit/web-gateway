@@ -5,9 +5,14 @@ import com.alibaba.fastjson.JSON;
 import io.netty.buffer.UnpooledByteBufAllocator;
 import net.fxft.webgateway.CorsConfig;
 import net.fxft.webgateway.route.GatewayRoutes;
+import net.fxft.webgateway.route.RouteLocatorImpl;
 import net.fxft.webgateway.vo.JsonMessage;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.cloud.gateway.event.RefreshRoutesEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -50,6 +55,21 @@ public class TestController {
 //        CorsConfig.addOrigin("null");
 //        return "true";
 //    }
+
+    @Autowired
+    private RouteLocatorImpl routeLocator;
+    @Autowired
+    private ApplicationEventPublisher publisherAware;
+
+
+    @RequestMapping("/updateRoutes")
+    private String updateRoute() {
+        routeLocator.updateRoutes();
+        publisherAware.publishEvent(new RefreshRoutesEvent(this));
+        return "成功";
+    }
+
+
 
     @RequestMapping("/logintest.action")
     public Mono<ServerResponse> login2(ServerWebExchange exchange) {
