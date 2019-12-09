@@ -15,7 +15,7 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-@Service
+@Service("autoChangeURIFilter")
 public class AutoChangeURIFilter implements GatewayFilter {
 
     public static final String Without_Token = "Without_Token";

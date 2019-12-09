@@ -24,7 +24,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Optional;
 
-@Component
+@Component("onlineUserHeaderFilter")
 public class OnlineUserHeaderFilter implements GatewayFilter {
 
     private static final Logger log = LoggerFactory.getLogger(OnlineUserHeaderFilter.class);

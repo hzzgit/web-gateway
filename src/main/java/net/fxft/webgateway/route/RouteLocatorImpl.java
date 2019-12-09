@@ -1,27 +1,36 @@
 package net.fxft.webgateway.route;
 
+import com.ltmonitor.util.StringUtil;
+import net.fxft.webgateway.po.RouteChangeConfig;
+import net.fxft.webgateway.service.RouteChangeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.event.RefreshRoutesEvent;
+import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.route.Route;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
 public class RouteLocatorImpl implements RouteLocator {
 
     private static final Logger log = LoggerFactory.getLogger(RouteLocatorImpl.class);
-    
+
     @Autowired
     private AutoCutPathFilter autoCutPathFilter;
     @Autowired
@@ -29,118 +38,79 @@ public class RouteLocatorImpl implements RouteLocator {
     @Autowired
     private OnlineUserHeaderFilter onlineUserHeaderFilter;
     @Autowired
+    private RouteChangeService routeChangeService;
+
+    @Autowired
     private AutoChangeURIFilter changeURIFilter;
     @Value("${attachementUrls.subiaoweb:}")
     private String noLoginUrls_subiaoweb;
     @Autowired
     private RouteLocatorBuilder builder;
 
-
-
     private Flux<Route> routeFlux = Flux.empty();
+
+    @Autowired
+    private ApplicationContext applicationContext;
+
+    List<RouteChangeConfig> oldlist;
 
     @Override
     public Flux<Route> getRoutes() {
-        log.info("----------------routeFlux:" + routeFlux);
+        log.info("----------------UpDaterouteFlux:" + routeFlux);
         return routeFlux;
     }
 
-    private int i = 1;
+    @Autowired
+    private ApplicationEventPublisher publisherAware;
 
     @PostConstruct
-    public void updateRoutes() {
-        if (i++ % 2 == 0) {
-            noLoginUrls_subiaoweb = "/attachment/**";
-        } else {
-            noLoginUrls_subiaoweb = "/attachment22/**";
-        }
-        log.info("noLoginUrls_subiaoweb=" + noLoginUrls_subiaoweb);
-
-        String[] urlarrsubiaoweb = noLoginUrls_subiaoweb.split(",");
-        //route是有序的
-        RouteLocator rl = builder.routes()
-                //对外接口不用登录
-                .route(r -> r.path(toStringArray(urlarrsubiaoweb,
-                        "/interfaceAPI/**",
-                        "/alarmSearchActionAPI/**",
-                        "/gpsApi/**",
-                        "/transparentSendAPI/**",
-                        "/vehicleActionAPI/**",
-                        "/appimg/getAppQRCodeImg.action",
-                        "/AppQRCodePicture/**",
-                        "/globalplatformconfig/**",
-                        "/platformconfig/getIpDomainPlatfromConfig.action",
-                        "/platformconfig/getGlobalPlatfromConfig.action"))
-                        .filters(f -> f.filter(autoCutPathFilter).filter(removeHeaderFilter))
-                        .uri("lb://subiaoweb22/")
-                )
-                .route(r -> r.path(
-                        toStringArray("/getMenuTree.action",
-                        "/getMainMenuTree.action",
-                        "/mapRefresh.action",
-                        "/getLockUser.action",
-                        "/functionModel/**",
-                        "/funcpriv/**",
-                        "/role/**",
-                        "/user/**",
-                        "/dep/**",
-                        "/securityapi/**",
-                        "/BigscreenAction/**",
-                        "/keyvalue/**",
-                        "/basicData/getMenuTree.action",
-                        "/basicData/funcpriv/query.action",
-                        "/unLockUser.action")
-                        )
-                        .filters(f -> f.filter(autoCutPathFilter).filter(onlineUserHeaderFilter))
-                        .uri("lb://security/")
-                )
-                .route(r -> r.path(toStringArray("/ccreport/**",
-                        "/logisreport/**",
-                        "/newreport/**",
-                        "/safedriving/**"))
-                        .filters(f -> f.filter(autoCutPathFilter).filter(onlineUserHeaderFilter))
-                        .uri("lb://financialreportwebapi/"))
-                .route(r -> r.path(toStringArray("/reportweb/**"))
-                        .filters(f -> f.filter(autoCutPathFilter).filter(onlineUserHeaderFilter))
-                        .uri("lb://reportweb/"))
-                //gps服务
-                .route(r -> r.path(toStringArray("/historyGpsInfo/**", "/track/**"))
-                        .filters(f -> f.filter(autoCutPathFilter).filter(onlineUserHeaderFilter))
-                        .uri("lb://gpswebapi/"))
-                //视频
-                .route(r -> r.path(toStringArray("/videoCommand/**", "/videoDownload/**",
-                        "/videoPlayBack/**", "/videoRequest/**", "/videoResourceSearch/**"))
-                        .filters(f -> f.filter(autoCutPathFilter).filter(onlineUserHeaderFilter))
-                        .uri("lb://videowebapi/"))
-                //实时监控
-                .route(r -> r.path(toStringArray("/board/**", "/MobilerealData/**",
-                        "/mobile/vehicle/getdeptreebyios.action",
-                        "/mobile/vehicle/getDepTree.action",
-                        "/realData/**", "/realDataweb/**",
-                        "/vehicle/getDepTree.action",
-                        "/vehicle/getDepTreexiamen.action",
-                        "/vehicle/searchbyvehicle.action"))
-                        .filters(f -> f.filter(autoCutPathFilter).filter(onlineUserHeaderFilter))
-                        .uri("lb://monitorwebapi/"))
-                //人脸识别
-                .route(r -> r.path(toStringArray("/facerecognition/getFaceCompareResult", "/facerecognition/getAccStatus"))
-                        .filters(f -> f.filter(autoCutPathFilter).filter(removeHeaderFilter))
-                        .uri("lb://facerecognition/"))
-                .route(r -> r.path(toStringArray("/facerecognition/**"))
-                        .filters(f -> f.filter(autoCutPathFilter).filter(onlineUserHeaderFilter))
-                        .uri("lb://facerecognition/"))
-                .route(r -> r.path(toStringArray("/**"))
-                        .filters(f -> f.filter(autoCutPathFilter).filter(onlineUserHeaderFilter))
-                        .uri("lb://subiaoweb/")
-                )
-                .build();
-        routeFlux = rl.getRoutes();
-        log.info("更新route成功！");
+    public void init() {
+        oldlist = routeChangeService.list();
+        updateRoutes();
     }
 
-    private String[] toStringArray(String... str) {
+    //更新路由信息
+    @Scheduled(fixedDelay = 30000)
+    public void refres() {
+        try {
+            //更新路由信息
+            List<RouteChangeConfig> newlist = routeChangeService.list();
+            if (oldlist.equals(newlist)) {
+                return;
+            }
+            this.oldlist = newlist;
+            updateRoutes();
+            //刷新内存路由信息
+            publisherAware.publishEvent(new RefreshRoutesEvent(this));
+        } catch (Exception e) {
+            log.error("定时更新路由信息失败{}", e);
+        }
+    }
+
+
+    public void updateRoutes() {
+        RouteLocatorBuilder.Builder routes = builder.routes();
+        for (RouteChangeConfig routeConfig : oldlist) {
+            routes = makeroots(routes, routeConfig);
+        }
+        RouteLocator rl = routes.build();
+        routeFlux = rl.getRoutes();
+    }
+
+    private RouteLocatorBuilder.Builder makeroots(RouteLocatorBuilder.Builder routes, RouteChangeConfig routeConfig) {
+        RouteLocatorBuilder.Builder route = routes.route(r ->
+                r.path(toStringArray(routeConfig.getPathName()))
+                        .filters(f -> f.filters(toStringList(routeConfig.getFliterName())))
+                        .uri(routeConfig.getUrl())
+                        .order(routeConfig.getOrders())
+        );
+        return route;
+    }
+
+    private String[] toStringArray(String str) {
         List<String> list = new ArrayList<>();
-        for (String s : str) {
+        List<String> psrts = Arrays.asList(str.split(","));
+        for (String s : psrts) {
             s = s.trim();
             if (s.length() > 0) {
                 list.add(s);
@@ -149,6 +119,28 @@ public class RouteLocatorImpl implements RouteLocator {
         }
         return list.toArray(new String[0]);
     }
+
+    private List<GatewayFilter> toStringList(String str) {
+        List<GatewayFilter> list = new ArrayList<>();
+        if (StringUtil.isNullOrEmpty(str)) {
+            return list;
+        }
+        List<String> psrts = Arrays.asList(str.split(","));
+        for (String s : psrts) {
+            s = s.trim();
+            if (s.length() > 0) {
+                try {
+                    GatewayFilter bean = (GatewayFilter) applicationContext.getBean(s);
+                    list.add(bean);
+                } catch (BeansException e) {
+                    log.error("----------容器中没有获取到:" + s + "的实例对象");
+                    continue;
+                }
+            }
+        }
+        return list;
+    }
+
 
     private String[] toStringArray(String[] strarr, String... str) {
         List<String> list = new ArrayList<>();
@@ -169,5 +161,16 @@ public class RouteLocatorImpl implements RouteLocator {
         return list.toArray(new String[0]);
     }
 
+    private String[] toStringArray(String... str) {
+        List<String> list = new ArrayList<>();
+        for (String s : str) {
+            s = s.trim();
+            if (s.length() > 0) {
+                list.add(s);
+                list.add(GatewayRoutes.Base_Prefix + s);
+            }
+        }
+        return list.toArray(new String[0]);
+    }
 
 }

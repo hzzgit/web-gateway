@@ -64,14 +64,13 @@ public class CorsConfig {
         }
         ipDomain.stream().filter(info -> {
             if (orginSet.contains(info)) {
-            return false;
+                return false;
             }
             return true;
         }).forEach(info -> {
             addOrigin(info);
-
         });
-      }
+    }
 
     public Set<String> getipDomain() {
         String sql = "select ip_domain from platform_config where #{aaa}";

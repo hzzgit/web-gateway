@@ -8,13 +8,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-@Component
+@Component("autoCutPathFilter")
 public class AutoCutPathFilter implements GatewayFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest newrequest = exchange.getRequest();
         String path = newrequest.getURI().getRawPath();
+        System.out.println(path);
         if (path.startsWith(GatewayRoutes.Base_Prefix)) {
             String newPath = path.replaceFirst(GatewayRoutes.Base_Prefix, "");
             newrequest = newrequest.mutate().path(newPath).build();
