@@ -39,7 +39,7 @@ public class RouteChangeService {
         jdbc.insert(routeChangeConfig)
                 .insertColumn(ColumnSet.all().ifNotEmpty())
                 .execute();
-        routeLocator.refres();
+        routeLocator.refresRouts();
     }
 
     /**
@@ -52,7 +52,7 @@ public class RouteChangeService {
                 .andEQ("id", routeChangeConfig.getId())
                 .updateColumn(ColumnSet.all().ifNotEmpty())
                 .execute();
-        routeLocator.refres();
+        routeLocator.refresRouts();
     }
 
 
@@ -77,7 +77,7 @@ public class RouteChangeService {
                 .updateSet("flag", 0)
                 .andIn("id", ids)
                 .execute();
-        routeLocator.refres();
+        routeLocator.refresRouts();
         return execute;
     }
 

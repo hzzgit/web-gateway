@@ -71,7 +71,7 @@ public class RouteLocatorImpl implements RouteLocator {
 
     //更新路由信息
     @Scheduled(fixedDelay = 30000)
-    public void refres() {
+    public void refresRouts() {
         try {
             //更新路由信息
             List<RouteChangeConfig> newlist = routeChangeService.list();
