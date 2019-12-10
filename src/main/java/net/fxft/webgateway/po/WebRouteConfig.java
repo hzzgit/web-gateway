@@ -8,9 +8,9 @@ import java.util.Objects;
 /**
  * 路由配置对象
  */
-@DbTable("route_change_config")
+@DbTable("web_route_config")
 @Data
-public class RouteChangeConfig {
+public class WebRouteConfig {
 
     /**
      * 主键id值
@@ -45,7 +45,7 @@ public class RouteChangeConfig {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        RouteChangeConfig that = (RouteChangeConfig) o;
+        WebRouteConfig that = (WebRouteConfig) o;
         return orders == that.orders &&
                 Objects.equals(id, that.id) &&
                 Objects.equals(url, that.url) &&

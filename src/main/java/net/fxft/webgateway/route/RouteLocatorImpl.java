@@ -1,13 +1,12 @@
 package net.fxft.webgateway.route;
 
 import com.ltmonitor.util.StringUtil;
-import net.fxft.webgateway.po.RouteChangeConfig;
+import net.fxft.webgateway.po.WebRouteConfig;
 import net.fxft.webgateway.service.RouteChangeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.event.RefreshRoutesEvent;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.route.Route;
@@ -15,8 +14,6 @@ import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ApplicationEventPublisherAware;
-import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -34,16 +31,7 @@ public class RouteLocatorImpl implements RouteLocator {
     @Autowired
     private AutoCutPathFilter autoCutPathFilter;
     @Autowired
-    private RemoveHeaderFilter removeHeaderFilter;
-    @Autowired
-    private OnlineUserHeaderFilter onlineUserHeaderFilter;
-    @Autowired
     private RouteChangeService routeChangeService;
-
-    @Autowired
-    private AutoChangeURIFilter changeURIFilter;
-    @Value("${attachementUrls.subiaoweb:}")
-    private String noLoginUrls_subiaoweb;
     @Autowired
     private RouteLocatorBuilder builder;
 
@@ -52,7 +40,7 @@ public class RouteLocatorImpl implements RouteLocator {
     @Autowired
     private ApplicationContext applicationContext;
 
-    List<RouteChangeConfig> oldlist;
+    List<WebRouteConfig> oldlist;
 
     @Override
     public Flux<Route> getRoutes() {
@@ -74,7 +62,7 @@ public class RouteLocatorImpl implements RouteLocator {
     public void refresRouts() {
         try {
             //更新路由信息
-            List<RouteChangeConfig> newlist = routeChangeService.list();
+            List<WebRouteConfig> newlist = routeChangeService.list();
             if (oldlist.equals(newlist)) {
                 return;
             }
@@ -87,17 +75,16 @@ public class RouteLocatorImpl implements RouteLocator {
         }
     }
 
-
     public void updateRoutes() {
         RouteLocatorBuilder.Builder routes = builder.routes();
-        for (RouteChangeConfig routeConfig : oldlist) {
+        for (WebRouteConfig routeConfig : oldlist) {
             routes = makeroots(routes, routeConfig);
         }
         RouteLocator rl = routes.build();
         routeFlux = rl.getRoutes();
     }
 
-    private RouteLocatorBuilder.Builder makeroots(RouteLocatorBuilder.Builder routes, RouteChangeConfig routeConfig) {
+    private RouteLocatorBuilder.Builder makeroots(RouteLocatorBuilder.Builder routes, WebRouteConfig routeConfig) {
         RouteLocatorBuilder.Builder route = routes.route(r ->
                 r.path(toStringArray(routeConfig.getPathName()))
                         .filters(f -> f.filters(toStringList(routeConfig.getFliterName())))
@@ -122,6 +109,7 @@ public class RouteLocatorImpl implements RouteLocator {
 
     private List<GatewayFilter> toStringList(String str) {
         List<GatewayFilter> list = new ArrayList<>();
+        list.add(autoCutPathFilter);
         if (StringUtil.isNullOrEmpty(str)) {
             return list;
         }
