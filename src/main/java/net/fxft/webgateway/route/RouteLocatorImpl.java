@@ -14,6 +14,7 @@ import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -38,13 +39,13 @@ public class RouteLocatorImpl implements RouteLocator {
     private Flux<Route> routeFlux = Flux.empty();
 
     @Autowired
-    private ApplicationContext applicationContext;
+    private ConfigurableApplicationContext applicationContext;
 
-    List<WebRouteConfig> oldlist;
+    private List<WebRouteConfig> dbRouteList = new ArrayList<>();
 
     @Override
     public Flux<Route> getRoutes() {
-        log.info("----------------UpDaterouteFlux:" + routeFlux);
+        log.info("---UpdateRouteFlux---" + routeFlux);
         return routeFlux;
     }
 
@@ -52,8 +53,8 @@ public class RouteLocatorImpl implements RouteLocator {
     private ApplicationEventPublisher publisherAware;
 
     @PostConstruct
-    public void init() {
-        oldlist = routeChangeService.list();
+    private void init() {
+        dbRouteList = routeChangeService.list();
         updateRoutes();
     }
 
@@ -63,31 +64,32 @@ public class RouteLocatorImpl implements RouteLocator {
         try {
             //更新路由信息
             List<WebRouteConfig> newlist = routeChangeService.list();
-            if (oldlist.equals(newlist)) {
+            if (dbRouteList.equals(newlist)) {
                 return;
+            }else {
+                this.dbRouteList = newlist;
+                updateRoutes();
             }
-            this.oldlist = newlist;
-            updateRoutes();
-            //刷新内存路由信息
-            publisherAware.publishEvent(new RefreshRoutesEvent(this));
         } catch (Exception e) {
             log.error("定时更新路由信息失败{}", e);
         }
     }
 
-    public void updateRoutes() {
+    private void updateRoutes() {
         RouteLocatorBuilder.Builder routes = builder.routes();
-        for (WebRouteConfig routeConfig : oldlist) {
-            routes = makeroots(routes, routeConfig);
+        for (WebRouteConfig routeConfig : dbRouteList) {
+            routes = makeRoutes(routes, routeConfig);
         }
         RouteLocator rl = routes.build();
         routeFlux = rl.getRoutes();
+        //刷新内存路由信息
+        publisherAware.publishEvent(new RefreshRoutesEvent(this));
     }
 
-    private RouteLocatorBuilder.Builder makeroots(RouteLocatorBuilder.Builder routes, WebRouteConfig routeConfig) {
+    private RouteLocatorBuilder.Builder makeRoutes(RouteLocatorBuilder.Builder routes, WebRouteConfig routeConfig) {
         RouteLocatorBuilder.Builder route = routes.route(r ->
                 r.path(toStringArray(routeConfig.getPathName()))
-                        .filters(f -> f.filters(toStringList(routeConfig.getFliterName())))
+                        .filters(f -> f.filters(toGatewayFilterList(routeConfig.getFliterName())))
                         .uri(routeConfig.getUrl())
                         .order(routeConfig.getOrders())
         );
@@ -107,7 +109,7 @@ public class RouteLocatorImpl implements RouteLocator {
         return list.toArray(new String[0]);
     }
 
-    private List<GatewayFilter> toStringList(String str) {
+    private List<GatewayFilter> toGatewayFilterList(String str) {
         List<GatewayFilter> list = new ArrayList<>();
         list.add(autoCutPathFilter);
         if (StringUtil.isNullOrEmpty(str)) {
@@ -121,7 +123,7 @@ public class RouteLocatorImpl implements RouteLocator {
                     GatewayFilter bean = (GatewayFilter) applicationContext.getBean(s);
                     list.add(bean);
                 } catch (BeansException e) {
-                    log.error("----------容器中没有获取到:" + s + "的实例对象");
+                    log.error("容器中没有获取到:" + s + "的实例对象", e);
                     continue;
                 }
             }
@@ -130,35 +132,35 @@ public class RouteLocatorImpl implements RouteLocator {
     }
 
 
-    private String[] toStringArray(String[] strarr, String... str) {
-        List<String> list = new ArrayList<>();
-        for (String s : strarr) {
-            s = s.trim();
-            if (s.length() > 0) {
-                list.add(s);
-                list.add(GatewayRoutes.Base_Prefix + s);
-            }
-        }
-        for (String s : str) {
-            s = s.trim();
-            if (s.length() > 0) {
-                list.add(s);
-                list.add(GatewayRoutes.Base_Prefix + s);
-            }
-        }
-        return list.toArray(new String[0]);
-    }
-
-    private String[] toStringArray(String... str) {
-        List<String> list = new ArrayList<>();
-        for (String s : str) {
-            s = s.trim();
-            if (s.length() > 0) {
-                list.add(s);
-                list.add(GatewayRoutes.Base_Prefix + s);
-            }
-        }
-        return list.toArray(new String[0]);
-    }
+//    private String[] toStringArray(String[] strarr, String... str) {
+//        List<String> list = new ArrayList<>();
+//        for (String s : strarr) {
+//            s = s.trim();
+//            if (s.length() > 0) {
+//                list.add(s);
+//                list.add(GatewayRoutes.Base_Prefix + s);
+//            }
+//        }
+//        for (String s : str) {
+//            s = s.trim();
+//            if (s.length() > 0) {
+//                list.add(s);
+//                list.add(GatewayRoutes.Base_Prefix + s);
+//            }
+//        }
+//        return list.toArray(new String[0]);
+//    }
+//
+//    private String[] toStringArray(String... str) {
+//        List<String> list = new ArrayList<>();
+//        for (String s : str) {
+//            s = s.trim();
+//            if (s.length() > 0) {
+//                list.add(s);
+//                list.add(GatewayRoutes.Base_Prefix + s);
+//            }
+//        }
+//        return list.toArray(new String[0]);
+//    }
 
 }

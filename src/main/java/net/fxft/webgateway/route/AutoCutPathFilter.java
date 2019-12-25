@@ -15,7 +15,6 @@ public class AutoCutPathFilter implements GatewayFilter {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest newrequest = exchange.getRequest();
         String path = newrequest.getURI().getRawPath();
-        System.out.println(path);
         if (path.startsWith(GatewayRoutes.Base_Prefix)) {
             String newPath = path.replaceFirst(GatewayRoutes.Base_Prefix, "");
             newrequest = newrequest.mutate().path(newPath).build();

@@ -3,42 +3,24 @@ package net.fxft.webgateway.controller;
 
 import com.alibaba.fastjson.JSON;
 import io.netty.buffer.UnpooledByteBufAllocator;
-import net.fxft.webgateway.CorsConfig;
 import net.fxft.webgateway.route.GatewayRoutes;
-import net.fxft.webgateway.route.RouteLocatorImpl;
 import net.fxft.webgateway.vo.JsonMessage;
-import org.reactivestreams.Publisher;
-import org.reactivestreams.Subscriber;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.context.config.annotation.RefreshScope;
-import org.springframework.cloud.gateway.event.RefreshRoutesEvent;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.NettyDataBufferFactory;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ZeroCopyHttpOutputMessage;
-import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.util.MultiValueMap;
-import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerResponse;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.io.*;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -56,18 +38,18 @@ public class TestController {
 //        return "true";
 //    }
 
-    @Autowired
-    private RouteLocatorImpl routeLocator;
-    @Autowired
-    private ApplicationEventPublisher publisherAware;
+//    @Autowired
+//    private RouteLocatorImpl routeLocator;
+//    @Autowired
+//    private ApplicationEventPublisher publisherAware;
 
 
-    @RequestMapping("/updateRoutes")
-    private String updateRoute() {
-        routeLocator.updateRoutes();
-        publisherAware.publishEvent(new RefreshRoutesEvent(this));
-        return "成功";
-    }
+//    @RequestMapping("/updateRoutes")
+//    private String updateRoute() {
+//        routeLocator.updateRoutes();
+//        publisherAware.publishEvent(new RefreshRoutesEvent(this));
+//        return "成功";
+//    }
 
 
 

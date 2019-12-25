@@ -22,8 +22,8 @@ public class RouteChangeService {
     private JdbcUtil jdbc;
 
     //刷新路由
-    @Autowired
-    private RouteLocatorImpl routeLocator;
+//    @Autowired
+//    private RouteLocatorImpl routeLocator;
 
 
     /**
@@ -31,25 +31,25 @@ public class RouteChangeService {
      *
      * @param routeChangeConfig
      */
-    public void save(WebRouteConfig routeChangeConfig) {
-        jdbc.insert(routeChangeConfig)
-                .insertColumn(ColumnSet.all().ifNotEmpty())
-                .execute();
-        routeLocator.refresRouts();
-    }
+//    public void save(WebRouteConfig routeChangeConfig) {
+//        jdbc.insert(routeChangeConfig)
+//                .insertColumn(ColumnSet.all().ifNotEmpty())
+//                .execute();
+//        routeLocator.refresRouts();
+//    }
 
     /**
      * 更新路由信息
      *
      * @param routeChangeConfig
      */
-    public void update(WebRouteConfig routeChangeConfig) {
-        jdbc.update(routeChangeConfig)
-                .andEQ("id", routeChangeConfig.getId())
-                .updateColumn(ColumnSet.all().ifNotEmpty())
-                .execute();
-        routeLocator.refresRouts();
-    }
+//    public void update(WebRouteConfig routeChangeConfig) {
+//        jdbc.update(routeChangeConfig)
+//                .andEQ("id", routeChangeConfig.getId())
+//                .updateColumn(ColumnSet.all().ifNotEmpty())
+//                .execute();
+//        routeLocator.refresRouts();
+//    }
 
 
     /**
@@ -69,14 +69,14 @@ public class RouteChangeService {
      *
      * @param ids
      */
-    public int delete(List<String> ids) {
-        int execute = jdbc.update(WebRouteConfig.class)
-                .updateSet("flag", 0)
-                .andIn("id", ids)
-                .execute();
-        routeLocator.refresRouts();
-        return execute;
-    }
+//    public int delete(List<String> ids) {
+//        int execute = jdbc.update(WebRouteConfig.class)
+//                .updateSet("flag", 0)
+//                .andIn("id", ids)
+//                .execute();
+//        routeLocator.refresRouts();
+//        return execute;
+//    }
 
 
 }
