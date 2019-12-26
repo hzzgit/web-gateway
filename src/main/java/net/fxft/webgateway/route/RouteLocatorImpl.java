@@ -24,24 +24,26 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@Service
 public class RouteLocatorImpl implements RouteLocator {
 
     private static final Logger log = LoggerFactory.getLogger(RouteLocatorImpl.class);
 
     @Autowired
+    private ConfigurableApplicationContext applicationContext;
+    @Autowired
     private AutoCutPathFilter autoCutPathFilter;
     @Autowired
     private RouteChangeService routeChangeService;
-    @Autowired
+
     private RouteLocatorBuilder builder;
 
     private Flux<Route> routeFlux = Flux.empty();
 
-    @Autowired
-    private ConfigurableApplicationContext applicationContext;
-
     private List<WebRouteConfig> dbRouteList = new ArrayList<>();
+
+    public RouteLocatorImpl(RouteLocatorBuilder builder) {
+        this.builder = builder;
+    }
 
     @Override
     public Flux<Route> getRoutes() {
