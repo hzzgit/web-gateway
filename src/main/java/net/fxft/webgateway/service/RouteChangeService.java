@@ -59,6 +59,7 @@ public class RouteChangeService {
      */
     public List<WebRouteConfig> list() {
         return jdbc.select(WebRouteConfig.class)
+                .setNotPrint()
                 .andEQ("flag", 1)
                 .orderby("id")
                 .query();

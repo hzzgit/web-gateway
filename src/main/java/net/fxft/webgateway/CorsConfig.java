@@ -74,6 +74,7 @@ public class CorsConfig {
     public Set<String> getipDomain() {
         String sql = "select ip_domain from platform_config where #{aaa}";
         List<String> query = jdbc.sql(sql)
+                .setNotPrint()
                 .whereName("aaa")
                 .and("ip_domain", Operator.RightLike, "http")
                 .endWhere()
