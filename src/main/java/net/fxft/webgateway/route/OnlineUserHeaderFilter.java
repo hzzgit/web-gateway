@@ -48,6 +48,7 @@ public class OnlineUserHeaderFilter implements GatewayFilter {
         hd.remove("origin");
         hd.remove("Authorization");
         hd.remove("authorization");
+        hd.remove("Expect", "100-continue");
     }
 
 

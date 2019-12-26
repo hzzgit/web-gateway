@@ -55,7 +55,7 @@ public class AutoCacheService {
                 log.info("从autoCache.cache中恢复缓存！cache=" + this.cmap);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("loadCache出错！", e);
         }
 
 
