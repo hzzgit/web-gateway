@@ -35,6 +35,7 @@ public class CorsConfig {
         corsConfig = new CorsConfiguration();
         corsConfig.addAllowedMethod("*");
         corsConfig.addAllowedHeader("*");
+        corsConfig.addExposedHeader("Authorization");
         corsConfig.setAllowCredentials(true);
         log.info("cors.AllowedOrigin=" + origins);
         for (String origin : origins.split(",")) {
