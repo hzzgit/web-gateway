@@ -113,10 +113,10 @@
     <build>
         <finalName>ascs-web-gateway</finalName>
         <plugins>
-<!--            <plugin>-->
-<!--                <groupId>pl.project13.maven</groupId>-->
-<!--                <artifactId>git-commit-id-plugin</artifactId>-->
-<!--            </plugin>-->
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+            </plugin>
             <plugin>
                 <groupId>net.fxft</groupId>
                 <artifactId>http-deploy</artifactId>
