@@ -5,7 +5,7 @@
 
     <groupId>net.fxft</groupId>
     <artifactId>ascs-web-gateway</artifactId>
-    <version>0.0.1-RELEASE</version>
+    <version>0.0.2-SNAPSHOT</version>
     <name>ascs-web-gateway</name>
     <description>Demo project for Spring Boot</description>
 
@@ -113,10 +113,10 @@
     <build>
         <finalName>ascs-web-gateway</finalName>
         <plugins>
-            <plugin>
-                <groupId>pl.project13.maven</groupId>
-                <artifactId>git-commit-id-plugin</artifactId>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>pl.project13.maven</groupId>-->
+<!--                <artifactId>git-commit-id-plugin</artifactId>-->
+<!--            </plugin>-->
             <plugin>
                 <groupId>net.fxft</groupId>
                 <artifactId>http-deploy</artifactId>
