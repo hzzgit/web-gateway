@@ -1,16 +1,20 @@
 package net.fxft.webgateway.controller;
 
+import com.alibaba.nacos.common.util.Md5Utils;
 import com.ltmonitor.util.StringUtil;
 import net.fxft.cloud.redis.RedisUtil;
 import net.fxft.common.jdbc.RowDataMap;
 import net.fxft.common.log.AttrLog;
 import net.fxft.common.util.BasicUtil;
 import net.fxft.common.util.JacksonUtil;
+import net.fxft.webgateway.dto.SsoLoginDto;
 import net.fxft.webgateway.jwt.JwtEncoder;
 import net.fxft.webgateway.po.SystemConfigPO;
 import net.fxft.webgateway.po.UserInfo;
 import net.fxft.webgateway.route.SessionTimeoutException;
+import net.fxft.webgateway.service.SsoLoginService;
 import net.fxft.webgateway.util.AuthenticationCodeUtil;
+import net.fxft.webgateway.util.IpUtil;
 import net.fxft.webgateway.vo.AppQrLoginDto;
 import net.fxft.webgateway.vo.JsonMessage;
 import net.fxft.webgateway.vo.LockUser;
@@ -52,6 +56,10 @@ public class LoginAction extends GenericAction {
 	private int errorLoginTimes;
 	@Autowired
 	private RedisUtil redisUtil;
+	@Autowired
+    private SsoLoginService ssoLoginService;
+	@Value("${sso.login.url}")
+	private String ssoLoginUrl;
 
 
 	@RequestMapping("/login2.action")
@@ -247,6 +255,32 @@ public class LoginAction extends GenericAction {
 		} finally {
 			log.debug(alog.toString());
 		}
+	}
+
+	@PostMapping("/ssoLogin.action")
+	public JsonMessage ssoLogin(@RequestBody SsoLoginDto dto, ServerHttpRequest request) {
+		String ipAddress = IpUtil.getIpAddress(request);
+		UserInfo userInfo = userInfoService.queryUserOrVehicleByName(dto.getLoginName());
+        if(userInfo != null) {
+			if(userInfo.getBindingIp() == null || userInfo.getBindingIp().equals("") || !userInfo.getBindingIp().equals(ipAddress)) {
+				return json(false, "用户信息不存在");
+			}
+
+            boolean verifyResult = ssoLoginService.verifySsoSignature(userInfo.getLoginName(), userInfo.getPassword(), dto.getSignatureTime(), dto.getSignature());
+            // 签名正确返回相应地址，接口
+            if(verifyResult) {
+                StringBuilder sb = new StringBuilder();
+                String url = "&url=" + ssoLoginUrl;
+                String api = "&api=" +"/appQrLogin.action";
+                String key = "&key=" + tokenService.createQRLoginJwtToken(userInfo);
+                sb.append(url).append(api).append(key);
+                return new JsonMessage(true, "操作成功", sb.toString());
+            } else {
+                return json(false, "签名校验失败");
+            }
+        } else {
+            return json(false, "用户信息不存在");
+        }
 	}
 
     @GetMapping("/loginQrCode.action")
