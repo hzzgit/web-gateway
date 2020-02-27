@@ -33,6 +33,10 @@ public class UserInfo implements java.io.Serializable {
 	private String userState;
 	private String userType;
 	private Long createStaff;
+	/**
+	 * 绑定Ip
+	 */
+	private String bindingIp;
 
 	public Integer getUserId() {
 		return this.userId;
@@ -112,6 +116,14 @@ public class UserInfo implements java.io.Serializable {
 
 	public boolean isVehicle() {
 		return UserType_Vehicle.equals(getUserType());
+	}
+
+	public String getBindingIp() {
+		return bindingIp;
+	}
+
+	public void setBindingIp(String bindingIp) {
+		this.bindingIp = bindingIp;
 	}
 
 	@Override

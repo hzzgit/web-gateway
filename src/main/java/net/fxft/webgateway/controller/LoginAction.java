@@ -6,13 +6,16 @@ import net.fxft.common.jdbc.RowDataMap;
 import net.fxft.common.log.AttrLog;
 import net.fxft.common.util.BasicUtil;
 import net.fxft.common.util.JacksonUtil;
+import net.fxft.webgateway.dto.SsoLoginDto;
 import net.fxft.webgateway.jwt.JwtEncoder;
 import net.fxft.webgateway.license.LicenseValidator;
 import net.fxft.webgateway.po.SystemConfigPO;
 import net.fxft.webgateway.po.UserInfo;
 import net.fxft.webgateway.route.GatewayRoutes;
 import net.fxft.webgateway.route.SessionTimeoutException;
+import net.fxft.webgateway.service.SsoLoginService;
 import net.fxft.webgateway.util.AuthenticationCodeUtil;
+import net.fxft.webgateway.util.IpUtil;
 import net.fxft.webgateway.vo.AppQrLoginDto;
 import net.fxft.webgateway.vo.JsonMessage;
 import net.fxft.webgateway.vo.LockUser;
@@ -57,6 +60,15 @@ public class LoginAction extends GenericAction {
 	private RedisUtil redisUtil;
 	@Autowired
 	private LicenseValidator licenseValidator;
+	@Autowired
+	private SsoLoginService ssoLoginService;
+	@Value("${sso.login.url}")
+	private String ssoLoginUrl;
+
+	/**
+	 * Sso能够运行的时间误差(单位毫秒)
+	 */
+	private int ssoLoginOffsetTime = 5 * 60 * 1000;
 
 	@RequestMapping("/login2.action")
 	public Mono<JsonMessage> login3(ServerHttpRequest request, ServerWebExchange exchange){
@@ -270,6 +282,42 @@ public class LoginAction extends GenericAction {
             return json(false, "生成二维码失败！");
         }
     }
+
+	/**
+	 * Sso单点登录
+	 * @param dto
+	 * @param request
+	 * @return
+	 */
+	@PostMapping("/ssoLogin.action")
+	public JsonMessage ssoLogin(@RequestBody SsoLoginDto dto, ServerHttpRequest request) {
+		long nowTime = System.currentTimeMillis();
+		if (nowTime + ssoLoginOffsetTime < dto.getSignatureTime() || nowTime - ssoLoginOffsetTime > dto.getSignatureTime()) {
+			return new JsonMessage(false, "签名过期");
+		}
+		String ipAddress = IpUtil.getIpAddress(request);
+		UserInfo userInfo = userInfoService.queryUserOrVehicleByName(dto.getLoginName());
+		if (userInfo != null) {
+			if (userInfo.getBindingIp() == null || userInfo.getBindingIp().equals("") || !userInfo.getBindingIp().equals(ipAddress)) {
+				return json(false, "用户信息不存在");
+			}
+
+			boolean verifyResult = ssoLoginService.verifySsoSignature(userInfo.getLoginName(), userInfo.getPassword(), dto.getSignatureTime(), dto.getSignature());
+			// 签名正确返回相应地址，接口
+			if (verifyResult) {
+				StringBuilder sb = new StringBuilder();
+				String url = ssoLoginUrl;
+				String token = "?token=" + tokenService.createQRLoginJwtToken(userInfo);
+				String model = "&model=third";
+				sb.append(url).append(token).append(model);
+				return new JsonMessage(true, "操作成功", sb.toString());
+			} else {
+				return json(false, "签名校验失败");
+			}
+		} else {
+			return json(false, "用户信息不存在");
+		}
+	}
 
     /**
      * app二维码登录
