@@ -65,6 +65,11 @@ public class LoginAction extends GenericAction {
     @Value("${sso.login.url}")
     private String ssoLoginUrl;
 
+    /**
+     * Sso能够运行的时间误差(单位毫秒)
+     */
+    private int ssoLoginOffsetTime = 5 * 60 * 1000;
+
     @RequestMapping("/login2.action")
     public Mono<JsonMessage> login3(ServerHttpRequest request, ServerWebExchange exchange){
         return exchange.getFormData().map(params -> {
@@ -280,6 +285,10 @@ public class LoginAction extends GenericAction {
 
     @PostMapping("/ssoLogin.action")
     public JsonMessage ssoLogin(@RequestBody SsoLoginDto dto, ServerHttpRequest request) {
+        long nowTime = System.currentTimeMillis();
+        if (nowTime + ssoLoginOffsetTime < dto.getSignatureTime() || nowTime - ssoLoginOffsetTime > dto.getSignatureTime()) {
+            return new JsonMessage(false, "签名过期");
+        }
         String ipAddress = IpUtil.getIpAddress(request);
         UserInfo userInfo = userInfoService.queryUserOrVehicleByName(dto.getLoginName());
         if(userInfo != null) {
