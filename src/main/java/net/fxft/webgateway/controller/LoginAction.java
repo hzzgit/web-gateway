@@ -299,10 +299,11 @@ public class LoginAction extends GenericAction {
 		UserInfo userInfo = userInfoService.queryUserOrVehicleByName(dto.getLoginName());
 		if (userInfo != null) {
 			if (userInfo.getBindingIp() == null || userInfo.getBindingIp().equals("") || !userInfo.getBindingIp().equals(ipAddress)) {
+			    log.info("用户Ip验证不通过：" + ipAddress);
 				return json(false, "用户信息不存在");
 			}
 
-			boolean verifyResult = ssoLoginService.verifySsoSignature(userInfo.getLoginName(), userInfo.getPassword(), dto.getSignatureTime(), dto.getSignature());
+			boolean verifyResult = ssoLoginService.verifySsoSignature(dto.getLoginName(), userInfo.getPassword(), dto.getSignatureTime(), dto.getSignature());
 			// 签名正确返回相应地址，接口
 			if (verifyResult) {
 				StringBuilder sb = new StringBuilder();
