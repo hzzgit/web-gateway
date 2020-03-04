@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
 public class UserInfoCacheService implements UpdateCacheEventListener {
-    
+
     private static final Logger log = LoggerFactory.getLogger(UserInfoCacheService.class);
 
     @Value("${config.vehicleLoginRoleName}")
@@ -33,6 +33,11 @@ public class UserInfoCacheService implements UpdateCacheEventListener {
     private Map<Integer, UserInfo> userIdMap = new ConcurrentHashMap<>();
     private Map<String, UserInfo> loginNameMap = new ConcurrentHashMap<>();
     private AtomicBoolean updateCacheFlag = new AtomicBoolean(true);
+    /**
+     * 是否支持手机登录配置
+     */
+    @Value("${login.consent.phone:true}")
+    private boolean loginConsentPhone;
 
     @PostConstruct
     @Scheduled(fixedRate = 1000)
@@ -58,7 +63,7 @@ public class UserInfoCacheService implements UpdateCacheEventListener {
     /**
      * 每小时更新一次
      */
-    @Scheduled(fixedRate = 60*60_000)
+    @Scheduled(fixedRate = 60 * 60_000)
     public void updateCache() {
         updateCacheFlag.getAndSet(true);
     }
@@ -80,9 +85,22 @@ public class UserInfoCacheService implements UpdateCacheEventListener {
     }
 
     public UserInfo queryUserOrVehicleByName(String loginName) {
-        UserInfo ui = jdbc.select(UserInfo.class).andEQ("loginName", loginName)
-                .andNotDeleted()
-                .queryFirst();
+        UserInfo ui;
+        if (loginConsentPhone) {
+            ui = jdbc.select(UserInfo.class)
+                    .orGroup()
+                    .or("loginName", JdbcUtil.Operator.EQ, loginName)
+                    .or("phoneNo", JdbcUtil.Operator.EQ, loginName)
+                    .endOrGroup()
+                    .andEQ("userState", "normal")
+                    .andNotDeleted()
+                    .queryFirst();
+        } else {
+            ui = jdbc.select(UserInfo.class).andEQ("loginName", loginName)
+                    .andEQ("userState", "normal")
+                    .andNotDeleted()
+                    .queryFirst();
+        }
         if (ui == null) {
             //查询车辆
             String sql = "select vehicleId, vehiclePassWord from vehicle where plateNo = ? and deleted = false";
@@ -112,7 +130,7 @@ public class UserInfoCacheService implements UpdateCacheEventListener {
     public String queryUserOrVehicleRoleName(UserInfo user) {
         if (user.isVehicle()) {
             return vehicleLoginRoleName;
-        }else {
+        } else {
             String sql = "select b.name from userrole a, role b where b.deleted = false and a.roleid = b.roleid and a.userid = ?";
             return jdbc.sql(sql).addIndexParam(user.getUserId()).queryOneString();
         }

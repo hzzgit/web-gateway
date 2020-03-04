@@ -296,7 +296,7 @@ public class LoginAction extends GenericAction {
                 return json(false, "用户信息不存在");
             }
 
-            boolean verifyResult = ssoLoginService.verifySsoSignature(userInfo.getLoginName(), userInfo.getPassword(), dto.getSignatureTime(), dto.getSignature());
+            boolean verifyResult = ssoLoginService.verifySsoSignature(dto.getLoginName(), userInfo.getPassword(), dto.getSignatureTime(), dto.getSignature());
             // 签名正确返回相应地址，接口
             if(verifyResult) {
                 StringBuilder sb = new StringBuilder();
