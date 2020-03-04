@@ -92,10 +92,12 @@ public class UserInfoCacheService implements UpdateCacheEventListener {
                     .or("loginName", JdbcUtil.Operator.EQ, loginName)
                     .or("phoneNo", JdbcUtil.Operator.EQ, loginName)
                     .endOrGroup()
+                    .andEQ("userState", "normal")
                     .andNotDeleted()
                     .queryFirst();
         } else {
             ui = jdbc.select(UserInfo.class).andEQ("loginName", loginName)
+                    .andEQ("userState", "normal")
                     .andNotDeleted()
                     .queryFirst();
         }
