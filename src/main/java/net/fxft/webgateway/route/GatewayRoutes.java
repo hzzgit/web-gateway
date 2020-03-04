@@ -105,6 +105,10 @@ public class GatewayRoutes {
                         .filters(f -> f.filter(autoCutPathFilter).filter(onlineUserHeaderFilter))
                         .uri("lb://subiaoweb/")
                 )
+                //新版司机模块
+                .route(r -> r.path(toStringArray("/drivermanage/**"))
+                        .filters(f -> f.filter(autoCutPathFilter).filter(onlineUserHeaderFilter))
+                        .uri("lb://ascs-drivermanage/"))
 //                .route(r -> r.path("/login/**")
 //                        .filters(f -> f.stripPrefix(1).filter(changeURIFilter))
 //                        .uri("lb://autochange")
