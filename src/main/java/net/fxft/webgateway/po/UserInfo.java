@@ -3,6 +3,8 @@ package net.fxft.webgateway.po;
 import net.fxft.common.jdbc.DbId;
 import net.fxft.common.jdbc.DbTable;
 
+import java.util.Date;
+
 @DbTable(value = "userinfo", camelToUnderline = false)
 public class UserInfo implements java.io.Serializable {
 
@@ -37,6 +39,16 @@ public class UserInfo implements java.io.Serializable {
      * 绑定Ip
      */
 	private String bindingIp;
+
+	/**
+	 * 有效开始区间
+	 */
+	private Date startExpireTime;
+
+	/**
+	 * 有效结束区间
+	 */
+	private Date endExpireTime;
 
 	public Integer getUserId() {
 		return this.userId;
@@ -126,7 +138,23 @@ public class UserInfo implements java.io.Serializable {
         this.bindingIp = bindingIp;
     }
 
-    @Override
+	public Date getStartExpireTime() {
+		return startExpireTime;
+	}
+
+	public void setStartExpireTime(Date startExpireTime) {
+		this.startExpireTime = startExpireTime;
+	}
+
+	public Date getEndExpireTime() {
+		return endExpireTime;
+	}
+
+	public void setEndExpireTime(Date endExpireTime) {
+		this.endExpireTime = endExpireTime;
+	}
+
+	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("UserInfo").append(" [");

@@ -2,6 +2,7 @@ package net.fxft.webgateway.controller;
 
 import net.fxft.common.el.MapConvert;
 import net.fxft.common.entity.JsonResponse;
+import net.fxft.common.jdbc.ColumnSet;
 import net.fxft.common.jdbc.JdbcUtil;
 import net.fxft.common.util.JacksonUtil;
 import net.fxft.common.util.ParseJsonMap;
@@ -49,7 +50,7 @@ public class ModuleVersionController {
             ModuleVersionPO existsPO = jdbc.select(ex).setNotPrint().whereColumnIfNotNull().queryFirst();
             if (existsPO != null) {
                 mv.setId(existsPO.getId());
-                jdbc.update(mv).setNotPrint().whereIdRefValueEQ().execute();
+                jdbc.update(mv).setNotPrint().updateColumn(ColumnSet.all()).whereIdRefValueEQ().execute();
                 log.debug("更新版本信息！" + mv);
             } else {
                 mv.setId(0);

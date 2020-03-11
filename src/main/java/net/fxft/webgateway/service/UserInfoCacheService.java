@@ -6,6 +6,7 @@ import net.fxft.gateway.event.everyunit.UpdateCacheEvent;
 import net.fxft.gateway.event.impl.UpdateCacheEventListener;
 import net.fxft.webgateway.po.Department;
 import net.fxft.webgateway.po.UserInfo;
+import net.fxft.webgateway.util.CustomException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -114,6 +116,14 @@ public class UserInfoCacheService implements UpdateCacheEventListener {
                 ui.setPassword(DigestUtils.md5Hex(vemap.getStringValue("vehiclePassWord")));
                 ui.setUserType(UserInfo.UserType_Vehicle);
                 ui.setUserState(UserInfo.STATE_NORMAL);
+            }
+        } else {
+            // 判断用户是否过期
+            if(ui.getStartExpireTime() != null && ui.getEndExpireTime() != null) {
+                long millis = System.currentTimeMillis();
+                if (ui.getStartExpireTime().getTime() > millis || ui.getEndExpireTime().getTime() < millis ) {
+                    throw new CustomException(false, "用户已经过期");
+                }
             }
         }
         return ui;

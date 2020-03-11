@@ -15,6 +15,7 @@ import net.fxft.webgateway.route.GatewayRoutes;
 import net.fxft.webgateway.route.SessionTimeoutException;
 import net.fxft.webgateway.service.SsoLoginService;
 import net.fxft.webgateway.util.AuthenticationCodeUtil;
+import net.fxft.webgateway.util.CustomException;
 import net.fxft.webgateway.util.IpUtil;
 import net.fxft.webgateway.vo.AppQrLoginDto;
 import net.fxft.webgateway.vo.JsonMessage;
@@ -106,6 +107,9 @@ public class LoginAction extends GenericAction {
             } catch (SessionTimeoutException e) {
                 alog.log("登录失败", e.getMessage());
                 return json(false, e.getMessage());
+            } catch (CustomException e){
+                log.error("登录失败！", e.getMessage());
+              return json(false, e.getMessage());
             } catch (Exception e) {
                 log.error("登录异常！", e);
                 return json(false, "登录时发生错误！");
