@@ -5,7 +5,7 @@
 
     <groupId>net.fxft</groupId>
     <artifactId>ascs-web-gateway</artifactId>
-    <version>0.0.3-SNAPSHOT</version>
+    <version>0.0.4-SNAPSHOT</version>
     <name>ascs-web-gateway</name>
     <description>Demo project for Spring Boot</description>
 
@@ -19,8 +19,8 @@
     <properties>
         <java.version>1.8</java.version>
         <!--0.5.14_RELEASE 用于2013版 版本号：0.0.4-SNAPSHOT——0.6.71-RELEASE 用于2019版，版本号：0.0.3-SNAPSHOT -->
-<!--        <ascs-gateway-protocol.version>0.5.14_RELEASE</ascs-gateway-protocol.version>-->
-        <ascs-gateway-protocol.version>0.6.71-RELEASE</ascs-gateway-protocol.version>
+        <ascs-gateway-protocol.version>0.5.14_RELEASE</ascs-gateway-protocol.version>
+<!--        <ascs-gateway-protocol.version>0.6.71-RELEASE</ascs-gateway-protocol.version>-->
     </properties>
 
     <dependencies>
@@ -115,13 +115,16 @@
     <build>
         <finalName>ascs-web-gateway</finalName>
         <plugins>
-<!--            <plugin>-->
-<!--                <groupId>pl.project13.maven</groupId>-->
-<!--                <artifactId>git-commit-id-plugin</artifactId>-->
-<!--            </plugin>-->
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+            </plugin>
             <plugin>
                 <groupId>net.fxft</groupId>
                 <artifactId>http-deploy</artifactId>
+                <configuration>
+                    <deployURL>http://112.5.154.242:3002/ascs</deployURL>
+                </configuration>
             </plugin>
         </plugins>
     </build>
