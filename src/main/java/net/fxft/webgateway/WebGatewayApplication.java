@@ -28,10 +28,10 @@ public class WebGatewayApplication {
         SpringUtil.invokeAfterStartedRunner(context);
     }
 
-    @Bean
-    public UnitConfig createUnitConfig() {
-        return new UnitConfig();
-    }
+//    @Bean
+//    public UnitConfig createUnitConfig() {
+//        return new UnitConfig();
+//    }
 
     @Bean
     public IEveryUnitKafkaHelper createEveryUnitKafkaHelper() {
