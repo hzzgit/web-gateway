@@ -86,6 +86,7 @@ public class RouteLocatorImpl implements RouteLocator {
         routeFlux = rl.getRoutes();
         //刷新内存路由信息
         publisherAware.publishEvent(new RefreshRoutesEvent(this));
+        log.info("更新路由配置成功！");
     }
 
     private RouteLocatorBuilder.Builder makeRoutes(RouteLocatorBuilder.Builder routes, WebRouteConfig routeConfig) {
