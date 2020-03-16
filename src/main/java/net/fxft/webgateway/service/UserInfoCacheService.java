@@ -3,7 +3,7 @@ package net.fxft.webgateway.service;
 import net.fxft.common.jdbc.JdbcUtil;
 import net.fxft.common.jdbc.RowDataMap;
 import net.fxft.gateway.event.everyunit.UpdateCacheEvent;
-import net.fxft.gateway.event.impl.UpdateCacheEventListener;
+import net.fxft.gateway.kafka.eventmsg.UpdateCacheEventListener;
 import net.fxft.webgateway.po.Department;
 import net.fxft.webgateway.po.UserInfo;
 import net.fxft.webgateway.util.CustomException;
@@ -16,7 +16,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
