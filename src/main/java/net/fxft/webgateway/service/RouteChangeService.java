@@ -1,9 +1,8 @@
 package net.fxft.webgateway.service;
 
-import net.fxft.common.jdbc.ColumnSet;
 import net.fxft.common.jdbc.JdbcUtil;
+import net.fxft.common.jdbc.JdbcUtil.OrderType;
 import net.fxft.webgateway.po.WebRouteConfig;
-import net.fxft.webgateway.route.RouteLocatorImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,7 +60,7 @@ public class RouteChangeService {
         return jdbc.select(WebRouteConfig.class)
                 .setNotPrint()
                 .andEQ("flag", 1)
-                .orderby("id")
+                .orderby("orders", OrderType.ASC, "id", OrderType.ASC)
                 .query();
     }
 
