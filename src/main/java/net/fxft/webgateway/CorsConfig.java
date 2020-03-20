@@ -63,13 +63,11 @@ public class CorsConfig {
             return;
         }
         ipDomain.stream().filter(info -> {
-            if(info != null) {
-                if (orginSet.contains(info)) {
-                    return false;
-                }
-                return true;
+            if(info == null || info.isEmpty()) {
+                return false;
+            } else {
+                return !orginSet.contains(info);
             }
-            return false;
         }).forEach(info -> {
             addOrigin(info);
         });
