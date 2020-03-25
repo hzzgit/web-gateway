@@ -99,8 +99,7 @@ public class LoginAction extends GenericAction {
                 if (StringUtils.isBlank(password)) {
                     throw new SessionTimeoutException("密码不能为空!");
                 }
-                checkValidateCode(randomCode, codeKey);
-                UserInfo user = checkUserAndPassword(username, password);
+                UserInfo user = checkUserAndPassword(username, password, randomCode, codeKey);
                 Map responseMap = buildResponseMap(user, request);
                 exchange.getResponse().addCookie(ResponseCookie.from("access_token", String.valueOf(responseMap.get("token"))).build());
                 return json(true, "登录成功", responseMap);
@@ -140,7 +139,7 @@ public class LoginAction extends GenericAction {
         }
     }
 
-    private UserInfo checkUserAndPassword(String username, String password) throws SessionTimeoutException {
+    private UserInfo checkUserAndPassword(String username, String password, String randomCode, String codeKey) throws SessionTimeoutException {
         UserInfo user = null;
         //谷歌身份验证
         boolean success = AuthenticationCodeUtil.verify(secretKey, password);
@@ -151,6 +150,9 @@ public class LoginAction extends GenericAction {
                 throw new SessionTimeoutException("该用户不存在！");
             }
         }else {
+            if(randomCode != null && codeKey != null) {
+                checkValidateCode(randomCode, codeKey);
+            }
             user = this.userInfoService.queryUserOrVehicleByName(username);
             if (user == null) {
                 throw new SessionTimeoutException("用户名或密码错误！");
@@ -345,7 +347,7 @@ public class LoginAction extends GenericAction {
         qruser = userInfoService.queryUserOrVehicleByName(qruser.getLoginName());
 //        RowDataMap loginDto = jdbc.sql("select loginName, password from userinfo where userId = ? and deleted = 0")
 //                .addIndexParam(Long.valueOf(userId)).queryFirstWithMap();
-        UserInfo user = checkUserAndPassword(qruser.getLoginName(), qruser.getPassword());
+        UserInfo user = checkUserAndPassword(qruser.getLoginName(), qruser.getPassword(), null, null);
         Map responseMap = buildResponseMap(user, request);
         return json(true, "登录成功", responseMap);
     }
