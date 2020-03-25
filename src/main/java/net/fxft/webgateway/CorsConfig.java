@@ -63,22 +63,20 @@ public class CorsConfig {
             return;
         }
         ipDomain.stream().filter(info -> {
-            if (orginSet.contains(info)) {
+            if(info == null || info.isEmpty()) {
                 return false;
+            } else {
+                return !orginSet.contains(info);
             }
-            return true;
         }).forEach(info -> {
             addOrigin(info);
         });
     }
 
     public Set<String> getipDomain() {
-        String sql = "select ip_domain from platform_config where #{aaa}";
+        String sql = "select ip_domain from platform_config";
         List<String> query = jdbc.sql(sql)
                 .setNotPrint()
-                .whereName("aaa")
-                .and("ip_domain", Operator.RightLike, "http")
-                .endWhere()
                 .query(String.class);
         Set<String> ipDomain = new HashSet<>(query);
         return ipDomain;

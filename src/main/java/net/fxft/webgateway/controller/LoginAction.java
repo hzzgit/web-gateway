@@ -6,6 +6,7 @@ import net.fxft.common.jdbc.RowDataMap;
 import net.fxft.common.log.AttrLog;
 import net.fxft.common.util.BasicUtil;
 import net.fxft.common.util.JacksonUtil;
+import net.fxft.gateway.util.FileStoreConfigUtil;
 import net.fxft.webgateway.dto.SsoLoginDto;
 import net.fxft.webgateway.jwt.JwtEncoder;
 import net.fxft.webgateway.license.LicenseValidator;
@@ -63,11 +64,8 @@ public class LoginAction extends GenericAction {
     private LicenseValidator licenseValidator;
     @Autowired
     private SsoLoginService ssoLoginService;
-    @Value("${sso.login.url}")
-    private String ssoLoginUrl;
-
     /**
-     * Sso能够运行的时间误差(单位毫秒)
+     * Sso能够允许的时间误差(单位毫秒)
      */
     private int ssoLoginOffsetTime = 5 * 60 * 1000;
 
@@ -306,10 +304,10 @@ public class LoginAction extends GenericAction {
             // 签名正确返回相应地址，接口
             if(verifyResult) {
                 StringBuilder sb = new StringBuilder();
-                String url = ssoLoginUrl;
                 String token = "?token=" + tokenService.createQRLoginJwtToken(userInfo);
                 String model = "&model=third";
-                sb.append(url).append(token).append(model);
+                // 读配置路径缓存进行拼接完整路径
+                sb.append(FileStoreConfigUtil.getHttpUrl("SsoLoginUrl")).append(token).append(model);
                 return new JsonMessage(true, "操作成功", sb.toString());
             } else {
                 return json(false, "签名校验失败");
