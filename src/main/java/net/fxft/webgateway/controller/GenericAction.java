@@ -98,7 +98,8 @@ public class GenericAction {
         if (token != null) {
             try {
                 String ustr = tokenService.getJwtDecoder().getSubject(token);
-                int userId = Integer.valueOf(ustr);
+                UserInfo userInfo = tokenService.getJwtEncoder().parseSubject(ustr);
+                int userId = userInfo.getUserId();
                 return userInfoService.getUserById(userId);
             } catch (Exception e) {
                 logger.error("解析jwtToken出错！token=" + token, e);
