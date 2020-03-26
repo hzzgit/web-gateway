@@ -71,6 +71,7 @@ public class CorsConfig {
         }).forEach(info -> {
             addOrigin(info);
         });
+
     }
 
     public Set<String> getipDomain() {
