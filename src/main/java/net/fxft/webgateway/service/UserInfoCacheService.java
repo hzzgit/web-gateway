@@ -121,7 +121,7 @@ public class UserInfoCacheService implements UpdateCacheEventListener {
             if(ui.getStartExpireTime() != null && ui.getEndExpireTime() != null) {
                 long millis = System.currentTimeMillis();
                 if (ui.getStartExpireTime().getTime() > millis || ui.getEndExpireTime().getTime() < millis ) {
-                    throw new CustomException(false, "账户已过期，请联系管理员！");
+                    throw new CustomException(false, "当前账号暂不可用，请联系管理员！");
                 }
             }
         }
