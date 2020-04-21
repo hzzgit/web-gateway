@@ -61,8 +61,17 @@ public final class AuthenticationCodeUtil {
     }
 
     public static void main(String[] args) {
-        for(int i=0 ; i<20 ; i++) {
-            System.out.println(createSecretKey());
-        }
+//        for(int i=0 ; i<20 ; i++) {
+//            System.out.println(createSecretKey());
+//        }
+        genSecretTest();
+    }
+
+    public static void genSecretTest() {// 生成密钥
+        String secret=createSecretKey();
+        // 把这个qrcode生成二维码，用google身份验证器扫描二维码就能添加成功
+        String format = "otpauth://totp/%s?secret=%s";
+        String format1 = String.format(format, "2816661736@qq.com", secret);
+        System.out.println("qrcode:" + format1 + ",key:" + secret);
     }
 }
