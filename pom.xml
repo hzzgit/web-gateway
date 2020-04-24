@@ -5,7 +5,7 @@
 
     <groupId>net.fxft</groupId>
     <artifactId>ascs-web-gateway</artifactId>
-    <version>0.0.6-SNAPSHOT</version>
+    <version>0.0.6-RELEASE</version>
     <name>ascs-web-gateway</name>
     <description>Demo project for Spring Boot</description>
 
