@@ -81,6 +81,7 @@ public class LoginAction extends GenericAction {
                 password = exchange.getRequest().getQueryParams().getFirst("password");
                 randomCode = exchange.getRequest().getQueryParams().getFirst("randomCode");
                 codeKey = exchange.getRequest().getQueryParams().getFirst("codeKey");
+
             }
             AttrLog alog = AttrLog.get("用户登录！")
                     .log("username", username)
