@@ -11,8 +11,6 @@ import reactor.core.publisher.Mono;
 @Component("autoCutPathFilter")
 public class AutoCutPathFilter implements GatewayFilter {
 
-
-
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest newrequest = exchange.getRequest();
@@ -22,8 +20,8 @@ public class AutoCutPathFilter implements GatewayFilter {
             newrequest = newrequest.mutate().path(newPath).build();
             exchange.getAttributes().put(ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR, newrequest.getURI());
         }
-        if (path.startsWith("debugwebgw")) {
-            String newPath = path.replaceFirst("debugwebgw", "");
+        if (path.startsWith("/debugwebgw")) {
+            String newPath = path.replaceFirst("/debugwebgw", "");
             newrequest = newrequest.mutate().path(newPath).build();
             exchange.getAttributes().put(ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR, newrequest.getURI());
         }
