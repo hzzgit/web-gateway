@@ -28,6 +28,8 @@ public class UserInfoCacheService implements UpdateCacheEventListener {
 
     @Value("${config.vehicleLoginRoleName}")
     private String vehicleLoginRoleName;
+    @Value("${open.VehicleLogin:true}")
+    private boolean ifOpenVehicleLogin;
     @Autowired
     private JdbcUtil jdbc;
 
@@ -103,18 +105,20 @@ public class UserInfoCacheService implements UpdateCacheEventListener {
                     .queryFirst();
         }
         if (ui == null) {
-            //查询车辆
-            String sql = "select vehicleId, vehiclePassWord from vehicle where plateNo = ? and deleted = false";
-            RowDataMap vemap = jdbc.sql(sql).addIndexParam(loginName)
-                    .queryFirstWithMap();
-            if (vemap != null) {
-                ui = new UserInfo();
-                ui.setUserId(vemap.getIntegerValue("vehicleId"));
-                ui.setLoginName(loginName);
-                ui.setName(loginName);
-                ui.setPassword(DigestUtils.md5Hex(vemap.getStringValue("vehiclePassWord")));
-                ui.setUserType(UserInfo.UserType_Vehicle);
-                ui.setUserState(UserInfo.STATE_NORMAL);
+            if(ifOpenVehicleLogin) {
+                //查询车辆
+                String sql = "select vehicleId, vehiclePassWord from vehicle where plateNo = ? and deleted = false";
+                RowDataMap vemap = jdbc.sql(sql).addIndexParam(loginName)
+                        .queryFirstWithMap();
+                if (vemap != null) {
+                    ui = new UserInfo();
+                    ui.setUserId(vemap.getIntegerValue("vehicleId"));
+                    ui.setLoginName(loginName);
+                    ui.setName(loginName);
+                    ui.setPassword(DigestUtils.md5Hex(vemap.getStringValue("vehiclePassWord")));
+                    ui.setUserType(UserInfo.UserType_Vehicle);
+                    ui.setUserState(UserInfo.STATE_NORMAL);
+                }
             }
         } else {
             // 判断用户是否过期

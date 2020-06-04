@@ -20,6 +20,11 @@ public class AutoCutPathFilter implements GatewayFilter {
             newrequest = newrequest.mutate().path(newPath).build();
             exchange.getAttributes().put(ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR, newrequest.getURI());
         }
+        if (path.startsWith("/debugwebgw")) {
+            String newPath = path.replaceFirst("/debugwebgw", "");
+            newrequest = newrequest.mutate().path(newPath).build();
+            exchange.getAttributes().put(ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR, newrequest.getURI());
+        }
         return chain.filter(exchange.mutate().request(newrequest).build());
     }
 
