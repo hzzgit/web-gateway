@@ -5,14 +5,14 @@
 
     <groupId>net.fxft</groupId>
     <artifactId>ascs-web-gateway</artifactId>
-    <version>0.0.7-SNAPSHOT</version>
+    <version>0.0.8-SNAPSHOT</version>
     <name>ascs-web-gateway</name>
     <description>Demo project for Spring Boot</description>
 
     <parent>
         <groupId>net.fxft</groupId>
         <artifactId>ascs-dependencies</artifactId>
-        <version>0.2.14-RELEASE</version>
+        <version>0.2.26-RELEASE</version>
         <relativePath/>
     </parent>
 
