@@ -13,23 +13,25 @@ public class AutoCutPathFilter implements GatewayFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        ServerHttpRequest newrequest = exchange.getRequest();
-        String path = newrequest.getURI().getRawPath();
+        String path = exchange.getRequest().getURI().getRawPath();
+        String newPath = path;
         if (path.startsWith(GatewayRoutes.Base_Prefix)) {
-            String newPath = path.replaceFirst(GatewayRoutes.Base_Prefix, "");
-            newrequest = newrequest.mutate().path(newPath).build();
-            exchange.getAttributes().put(ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR, newrequest.getURI());
+            newPath = path.replaceFirst(GatewayRoutes.Base_Prefix, "");
         }
-        if (path.startsWith("/pre-")) {
-            int i = path.indexOf("/", 2);
-            String newPath = path;
+        if (newPath.startsWith("/pre-")) {
+            int i = newPath.indexOf("/", 2);
             if(i > 0) {
-                newPath = path.substring(i);
+                newPath = newPath.substring(i);
             }
+        }
+        if (newPath.equals(path)) {
+            ServerHttpRequest newrequest = exchange.getRequest();
             newrequest = newrequest.mutate().path(newPath).build();
             exchange.getAttributes().put(ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR, newrequest.getURI());
+            return chain.filter(exchange.mutate().request(newrequest).build());
+        } else {
+            return chain.filter(exchange);
         }
-        return chain.filter(exchange.mutate().request(newrequest).build());
     }
 
 }
