@@ -24,7 +24,7 @@ public class AutoCutPathFilter implements GatewayFilter {
                 newPath = newPath.substring(i);
             }
         }
-        if (newPath.equals(path)) {
+        if (!newPath.equals(path)) {
             ServerHttpRequest newrequest = exchange.getRequest();
             newrequest = newrequest.mutate().path(newPath).build();
             exchange.getAttributes().put(ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR, newrequest.getURI());
